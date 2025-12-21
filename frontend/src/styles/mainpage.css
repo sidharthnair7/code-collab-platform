@@ -1,0 +1,35 @@
+.Header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+
+
+    background: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.08),
+            rgba(0, 0, 0, 0.6)
+    );
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 1000;
+}
+
+.page-container {
+    padding-top: 80px;
+}
+
+.MainWorkSpace {
+    min-height: 100vh;
+    background: #121212;
+}

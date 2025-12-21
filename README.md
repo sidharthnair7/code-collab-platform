@@ -19,7 +19,7 @@ The application focuses on secure, user-based access and workspace management, w
 ## Tech Stack
 
 ### Backend
-- Java 17
+- Java 21 (tested on Java 25 LTS)
 - Spring Boot
 - Spring Security
 - JWT Authentication

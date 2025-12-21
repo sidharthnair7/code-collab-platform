@@ -48,7 +48,7 @@ Real-time collaborative editing will be added in a future iteration.
 ## Running the Project Locally
 
 ### Prerequisites
-- Java 17+
+- Java 21+ (tested on Java 25 LTS)
 - Maven
 - PostgreSQL
 - Node.js (for frontend)

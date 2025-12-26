@@ -1,0 +1,49 @@
+package projectCP.config;
+
+
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import projectCP.chat.ChatMessage;
+import projectCP.chat.ChatType;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.stereotype.Component;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import projectCP.codeeditor.Code;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class WebSocketEventListener {
+
+    private final SimpMessageSendingOperations messagingTemplate;
+
+    public void HandleWebSocket(SessionDisconnectEvent event) {
+
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        String username = (String)accessor.getSessionAttributes().get("username");
+
+        if(username!=null){
+            log.info("username:"+username+ " disconnected");
+            var chatMessage= ChatMessage.builder()
+                    .chatType(ChatType.LEAVE)
+                    .sender(username)
+                    .build();
+            messagingTemplate.convertAndSend("/topic/",chatMessage);
+        }
+    }
+
+    public void HandleCodeEditorOperations(Code code, StompHeaderAccessor headerAccessor) {
+        String username = (String)headerAccessor.getSessionAttributes().get("username");
+        if(username!=null){
+            code.setUsername(username);
+            code.setTimestamp(System.currentTimeMillis());
+
+            messagingTemplate.convertAndSend("/topic/code", code);
+        }
+
+    }
+
+}
+

@@ -32,6 +32,9 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/editor/**").permitAll()
+                        .requestMatchers("/app/**").permitAll()
+                        .requestMatchers("/topic/**").permitAll()
                         .requestMatchers("/api/v1/workspace/**").authenticated()
                         .requestMatchers("/api/v1/files/**").authenticated()
                         .anyRequest().authenticated()

@@ -14,3 +14,8 @@ A real-time collaborative code editor built with Spring Boot and React.
 - Frontend: React, Monaco Editor
 - Database: PostgreSQL
 - Realtime: WebSockets (STOMP)
+
+## Future Improvements
+- WebSocket authentication via JWT handshake
+- Presence indicators (active collaborators)
+- Deployment with Docker / cloud hosting

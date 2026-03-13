@@ -20,8 +20,13 @@ public class WorkSpaceService {
 
 
     public List<WorkSpaceDTO> findAll() {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         return repository.findAll()
                 .stream()
+                .filter(ws -> ws.getOwner().getId().equals(user.getId()))
                 .map(workSpace -> new WorkSpaceDTO(workSpace.getId(), workSpace.getName(), new UserDTO(
                         workSpace.getOwner().getId(),
                         workSpace.getOwner().getEmail(),

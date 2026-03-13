@@ -17,8 +17,8 @@ public class FileService {
     private final WorkSpaceRepository workSpaceRepository;
 
 
-    public List<FileDTO> findAll() {
-        return repository.findAll()
+    public List<FileDTO> findAll(Integer ownerId) {
+        return repository.findByWorkspaceOwnerId(ownerId)
                 .stream()
                 .map(file -> new FileDTO(
                         file.getId(),

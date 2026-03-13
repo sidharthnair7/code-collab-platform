@@ -3,7 +3,10 @@ package projectCP.file;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import projectCP.user.User;
+import projectCP.user.UserRepository;
 
 import java.util.List;
 
@@ -12,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileController {
     private final FileService fileService;
+    private final UserRepository userRepository;
 
 
     @GetMapping("/{id}")
@@ -22,8 +26,10 @@ public class FileController {
 
     @GetMapping
     public ResponseEntity<List<FileDTO>> getAllFiles() {
-        return ResponseEntity.ok(fileService.findAll());
-
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(fileService.findAll(user.getId()));
     }
 
     @PostMapping

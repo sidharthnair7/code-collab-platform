@@ -18,7 +18,7 @@ export default function MainLayout({ token }) {
     const editorRef = useRef(null);
     const monacoRef = useRef(null);
     const clientIdRef = useRef(crypto.randomUUID());
-    const usernameRef = useRef(`user_${Math.random().toString(36).slice(2, 9)}`);
+    const usernameRef = useRef(username);
     const lastSentRef = useRef(null);
 
     useEffect(() => {

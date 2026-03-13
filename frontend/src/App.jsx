@@ -7,7 +7,13 @@ import MainPart from "./components/mainPart";
 
 export default function App() {
     const [token, setToken] = useState(null);
+    const [username, setUsername] = useState(null);
     const [mode, setMode] = useState("login"); // login | signup
+    function handleLogin(token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setUsername(payload.sub); // 'sub' is the email, set as subject in JwtService
+        setToken(token);
+    }
 
     if (!token) {
         return (
@@ -15,12 +21,12 @@ export default function App() {
                 <Header />
                 {mode === "login" ? (
                     <Login
-                        onLogin={setToken}
+                        onLogin={handleLogin}
                         switchMode={() => setMode("signup")}
                     />
                 ) : (
                     <Signup
-                        onSignup={setToken}
+                        onSignup={handleLogin}
                         switchMode={() => setMode("login")}
                     />
                 )}
@@ -28,5 +34,7 @@ export default function App() {
         );
     }
 
-    return <MainPart token={token} />;
+    return <MainPart token={token} username={username} />;
+
 }
+

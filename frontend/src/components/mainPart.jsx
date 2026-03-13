@@ -1,5 +1,5 @@
 import MainLayout from "./MainLayout";
 
-export default function MainPart({ token }) {
-    return <MainLayout token={token} />;
+export default function MainPart({ token, username }) {
+    return <MainLayout token={token} username={username} />;
 }

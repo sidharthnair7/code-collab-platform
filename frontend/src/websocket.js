@@ -4,7 +4,7 @@ import { Stomp } from '@stomp/stompjs';
 let stompClient = null;
 let isConnected = false;
 
-export function connectWebSocket(username, onMessageReceived) {
+export function connectWebSocket(username,fileId, onMessageReceived) {
     console.log('🔵 Attempting to connect to WebSocket...');
 
     const socket = new SockJS('http://localhost:8080/editor');
@@ -26,7 +26,7 @@ export function connectWebSocket(username, onMessageReceived) {
             );
 
             console.log('📥 Subscribing to /topic/code');
-            stompClient.subscribe('/topic/code', (message) => {
+            stompClient.subscribe(`/topic/code/${fileId}`, (message) => {
                 const op = JSON.parse(message.body);
                 onMessageReceived(op);
             });
@@ -37,7 +37,7 @@ export function connectWebSocket(username, onMessageReceived) {
 
             setTimeout(() => {
                 console.log('🔄 Attempting to reconnect...');
-                connectWebSocket(username, onMessageReceived);
+                connectWebSocket(username, fileId, onMessageReceived);
             }, 5000);
         }
     );

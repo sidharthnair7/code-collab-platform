@@ -86,6 +86,21 @@ export async function getWorkspaces(token) {
     return res.json();
 }
 
+export async function getWorkspaceById(token,id){
+    const res = await fetch(`${API_BASE}/workspace/${id}`, {
+        headers: authHeaders(token),
+    });
+    if(!res.ok) throw new Error("WORKSPACE NOT FOUND");
+    return res.json();
+}
+export async function getFilesByWorkspace(token,workspaceId) {
+    const res = await fetch(`${API_BASE}/files?workspaceId=${workspaceId}`, {
+        headers:authHeaders(token),
+    });
+    if (!res.ok) throw new Error("Failed to get files");
+    return res.json();
+}
+
 export async function createWorkspace(token, name) {
     const res = await fetch(`${API_BASE}/workspace`, {
         method: "POST",

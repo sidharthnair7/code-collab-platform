@@ -84,7 +84,9 @@ export default function WorkspaceList({ files, token, onDelete, onRename, onUpda
                         Cancel
                     </button>
                 </div>
+
             )}
+
 
 
             {files.length === 0 ? (

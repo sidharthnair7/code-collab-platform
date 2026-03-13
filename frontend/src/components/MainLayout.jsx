@@ -4,6 +4,7 @@ import { connectWebSocket, sendCodeOperation, disconnectWebSocket } from "../web
 import Editor from "@monaco-editor/react";
 
 export default function MainLayout({ token, username }) {
+    const [joinId, setJoinId] = useState("");
     const [workspaces, setWorkspaces] = useState([]);
     const [files, setFiles] = useState([]);
     const [selectedWorkspace, setSelectedWorkspace] = useState(null);
@@ -48,7 +49,7 @@ export default function MainLayout({ token, username }) {
             return;
         }
 
-        connectWebSocket(usernameRef.current, handleIncomingCodeOperation);
+        connectWebSocket(usernameRef.current,selectedFile.id, handleIncomingCodeOperation);
         setIsWebSocketConnected(true);
 
         return () => {
@@ -319,6 +320,17 @@ export default function MainLayout({ token, username }) {
                             }}
                         >
                             {ws.workSpaceName}
+                            <div style={{ fontSize: "10px", color: "#aaa", marginTop: "2px" }}>
+                                ID: {ws.id}
+                                <span
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigator.clipboard.writeText(String(ws.id));
+                                        alert("ID copied!");
+                                    }}
+                                    style={{ marginLeft: "4px", cursor: "pointer", color: "#007acc" }}
+                                >copy</span>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -355,6 +367,51 @@ export default function MainLayout({ token, username }) {
                         Create Workspace
                     </button>
                 </div>
+            </div>
+            <div style={{ marginTop: "1rem" }}>
+                <input
+                    value={joinId}
+                    onChange={(e) => setJoinId(e.target.value)}
+                    placeholder="Join by workspace ID"
+                    style={{
+                        width: "100%",
+                        padding: "0.75rem",
+                        marginBottom: "0.5rem",
+                        background: "#252526",
+                        border: "1px solid #333",
+                        color: "#fff",
+                        borderRadius: "4px"
+                    }}
+                />
+                <button
+                    onClick={async () => {
+                        if (!joinId.trim()) return;
+                        try {
+                            const { getWorkspaceById } = await import("../api");
+                            const ws = await getWorkspaceById(token, parseInt(joinId));
+                            setWorkspaces(prev => {
+                                if (prev.find(w => w.id === ws.id)) return prev;
+                                return [...prev, ws];
+                            });
+                            setSelectedWorkspace(ws);
+                            setJoinId("");
+                        } catch (err) {
+                            alert("Workspace not found: " + err.message);
+                        }
+                    }}
+                    style={{
+                        width: "100%",
+                        padding: "0.75rem",
+                        cursor: "pointer",
+                        background: "#6a0dad",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        fontWeight: "bold"
+                    }}
+                >
+                    Join Workspace
+                </button>
             </div>
 
             {/* MIDDLE - Monaco Editor (Larger) */}

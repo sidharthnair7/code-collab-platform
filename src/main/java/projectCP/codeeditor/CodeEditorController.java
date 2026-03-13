@@ -4,15 +4,21 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
 
 @Controller
 public class CodeEditorController {
+
+    private final SimpMessageSendingOperations messagingTemplate;
+
+    public CodeEditorController(SimpMessageSendingOperations messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+    }
     @MessageMapping("/code.operation")
-    @SendTo("/topic/code")
-    public Code handleCodeOperation(@Payload Code code, SimpMessageHeaderAccessor headerAccessor) {
+    public void handleCodeOperation(@Payload Code code, SimpMessageHeaderAccessor headerAccessor) {
 
 
         String username = (String) headerAccessor.getSessionAttributes().get("username");
@@ -21,6 +27,6 @@ public class CodeEditorController {
             code.setTimestamp(System.currentTimeMillis());
         }
 
-        return code;
+        messagingTemplate.convertAndSend("/topic/code/" + code.getFileId(), code);
     }
 }

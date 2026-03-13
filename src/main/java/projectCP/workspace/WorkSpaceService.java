@@ -36,6 +36,19 @@ public class WorkSpaceService {
                 .collect(Collectors.toList());
     }
 
+
+    public WorkSpaceDTO findById(Integer id) {
+        WorkSpace workSpace = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Workspace not found"));
+        return new WorkSpaceDTO(workSpace.getId(), workSpace.getName(), new UserDTO(
+                workSpace.getOwner().getId(),
+                workSpace.getOwner().getEmail(),
+                workSpace.getOwner().getFirstName(),
+                workSpace.getOwner().getLastName()
+
+        ));
+    }
+
     public void createWorkSpace(WorkSpaceDTO workSpaceDTO) {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(currentUsername)

@@ -19,6 +19,11 @@ public class WorkSpaceController {
         return service.findAll();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<WorkSpaceDTO> getWorkSpaceById(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.findById(id));
+    }
+
     @PostMapping
     public ResponseEntity<Void> createWorkSpace(@RequestBody WorkSpaceDTO workSpaceDTO) {
         service.createWorkSpace(workSpaceDTO);

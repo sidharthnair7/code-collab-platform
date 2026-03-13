@@ -3,7 +3,7 @@ import { getFiles, getWorkspaces, createFile, createWorkspace, deleteFile, updat
 import { connectWebSocket, sendCodeOperation, disconnectWebSocket } from "../websocket";
 import Editor from "@monaco-editor/react";
 
-export default function MainLayout({ token }) {
+export default function MainLayout({ token, username }) {
     const [workspaces, setWorkspaces] = useState([]);
     const [files, setFiles] = useState([]);
     const [selectedWorkspace, setSelectedWorkspace] = useState(null);
@@ -20,6 +20,8 @@ export default function MainLayout({ token }) {
     const clientIdRef = useRef(crypto.randomUUID());
     const usernameRef = useRef(username);
     const lastSentRef = useRef(null);
+    const selectedFileRef = useRef(null);
+
 
     useEffect(() => {
         loadWorkspaces();
@@ -33,6 +35,10 @@ export default function MainLayout({ token }) {
         } else {
             setFileContent("");
         }
+    }, [selectedFile]);
+
+    useEffect(() => {
+        selectedFileRef.current = selectedFile;
     }, [selectedFile]);
 
     useEffect(() => {
@@ -55,12 +61,12 @@ export default function MainLayout({ token }) {
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📨 RECEIVED OPERATION:', operation.codeTextType);
 
-        if (!selectedFile) {
+        if (!selectedFileRef.current) {
             console.log(' BLOCKED: No file selected');
             return;
         }
 
-        if (operation.fileId !== selectedFile.id) {
+        if (operation.fileId !== selectedFileRef.current.id) {
             console.log(' BLOCKED: Different file');
             return;
         }

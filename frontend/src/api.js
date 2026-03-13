@@ -90,7 +90,7 @@ export async function createWorkspace(token, name) {
     const res = await fetch(`${API_BASE}/workspace`, {
         method: "POST",
         headers: authHeaders(token),
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ workSpaceName: name }),
     });
 
     if (!res.ok) throw new Error("Failed to create workspace");

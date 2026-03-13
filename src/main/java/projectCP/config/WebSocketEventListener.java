@@ -1,6 +1,7 @@
 package projectCP.config;
 
 
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import projectCP.chat.ChatMessage;
 import projectCP.chat.ChatType;
@@ -19,6 +20,7 @@ public class WebSocketEventListener {
 
     private final SimpMessageSendingOperations messagingTemplate;
 
+    @EventListener
     public void HandleWebSocket(SessionDisconnectEvent event) {
 
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());

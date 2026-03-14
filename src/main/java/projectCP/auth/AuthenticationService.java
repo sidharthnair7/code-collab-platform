@@ -27,6 +27,9 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse register(RegisterRequest request) throws Exception{
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new Exception("Email already registered. Please log in instead.");
+        }
 
         var user= User.builder()
                 .firstName(request.getFirstName())

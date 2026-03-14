@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import Header from "./components/header";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import MainPart from "./components/mainPart";
@@ -14,11 +13,15 @@ export default function App() {
         setUsername(payload.sub); // 'sub' is the email, set as subject in JwtService
         setToken(token);
     }
+    function handleLogout() {
+        setToken(null);
+        setUsername(null);
+    }
 
     if (!token) {
         return (
             <>
-                <Header />
+
                 {mode === "login" ? (
                     <Login
                         onLogin={handleLogin}
@@ -34,7 +37,10 @@ export default function App() {
         );
     }
 
-    return <MainPart token={token} username={username} />;
+
+
+    return <MainPart token={token} username={username} onLogout={handleLogout} />;
 
 }
+
 

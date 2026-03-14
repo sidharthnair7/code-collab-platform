@@ -3,7 +3,7 @@ import { getFiles, getWorkspaces, createFile, createWorkspace, deleteFile, updat
 import { connectWebSocket, sendCodeOperation, disconnectWebSocket } from "../websocket";
 import Editor from "@monaco-editor/react";
 
-export default function MainLayout({ token, username }) {
+export default function MainLayout({ token, username, onLogout }) {
     const [joinId, setJoinId] = useState("");
     const [workspaces, setWorkspaces] = useState([]);
     const [files, setFiles] = useState([]);
@@ -320,15 +320,22 @@ export default function MainLayout({ token, username }) {
                             }}
                         >
                             {ws.workSpaceName}
-                            <div style={{ fontSize: "10px", color: "#aaa", marginTop: "2px" }}>
-                                ID: {ws.id}
+                            <div style={{
+                                fontSize: "10px",
+                                color: "#666",
+                                marginTop: "2px",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "4px"
+                            }}>
+                                <span>ID: {ws.id}</span>
                                 <span
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         navigator.clipboard.writeText(String(ws.id));
                                         alert("ID copied!");
                                     }}
-                                    style={{ marginLeft: "4px", cursor: "pointer", color: "#007acc" }}
+                                    style={{ cursor: "pointer", color: "#007acc" }}
                                 >copy</span>
                             </div>
                         </div>
@@ -431,24 +438,37 @@ export default function MainLayout({ token, username }) {
                     justifyContent: "space-between",
                     alignItems: "center"
                 }}>
-                    <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-                        {selectedFile ? selectedFile.fileName : "No file selected"}
-                    </span>
-                    {selectedFile && (
-                        <button onClick={handleSaveFile} style={{
-                            marginLeft: "1rem",
-                            padding: "0.5rem 1.5rem",
-                            background: "#007acc",
-                            color: "white",
-                            border: "none",
+    <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+        {selectedFile ? selectedFile.fileName : "No file selected"}
+    </span>
+                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                        {selectedFile && (
+                            <button onClick={handleSaveFile} style={{
+                                padding: "0.5rem 1.5rem",
+                                background: "#007acc",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: "pointer",
+                                fontWeight: "bold"
+                            }}>
+                                Save
+                            </button>
+                        )}
+                        <button onClick={onLogout} style={{
+                            padding: "0.5rem 1rem",
+                            background: "transparent",
+                            color: "#888",
+                            border: "1px solid #333",
                             borderRadius: "4px",
                             cursor: "pointer",
-                            fontWeight: "bold"
+                            fontSize: "13px"
                         }}>
-                            Save
+                            Sign out
                         </button>
-                    )}
+                    </div>
                 </div>
+
 
                 {selectedFile ? (
                     <div style={{ flex: 1, position: "relative", background: "#1e1e1e" }}>
@@ -589,4 +609,5 @@ export default function MainLayout({ token, username }) {
             </div>
         </div>
     );
+
 }

@@ -30,6 +30,20 @@ public class FileService {
                 ))
                 .toList();
     }
+    public List<FileDTO> findByWorkspaceId(Integer workspaceId) {
+        return repository.findAll()
+                .stream()
+                .filter(f -> f.getWorkspace().getId().equals(workspaceId))
+                .map(file -> new FileDTO(
+                        file.getId(),
+                        file.getFileName(),
+                        file.getContent(),
+                        file.getWorkspace().getId(),
+                        file.getCreatedDate(),
+                        file.getModifiedDate()
+                ))
+                .toList();
+    }
 
 
     public FileDTO findFileByID(Integer id) {

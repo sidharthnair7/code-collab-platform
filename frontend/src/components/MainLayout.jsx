@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { getFiles, getWorkspaces, createFile, createWorkspace, deleteFile, updateFileContent } from "../api";
+import { getFiles, getWorkspaces, createFile, createWorkspace, deleteFile, updateFileContent, getFilesByWorkspace } from "../api";
 import { connectWebSocket, sendCodeOperation, disconnectWebSocket } from "../websocket";
 import Editor from "@monaco-editor/react";
 
@@ -28,6 +28,23 @@ export default function MainLayout({ token, username, onLogout }) {
         loadWorkspaces();
         loadFiles();
     }, [token]);
+
+    useEffect(() => {
+        if (!selectedWorkspace) return;
+
+        const interval = setInterval(() => {
+            loadFiles();
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [selectedWorkspace]);
+
+    useEffect(() => {
+        if (selectedWorkspace) {
+            loadFiles();
+        }
+    }, [selectedWorkspace]);
+
 
 
     useEffect(() => {
@@ -219,7 +236,9 @@ export default function MainLayout({ token, username, onLogout }) {
 
     async function loadFiles() {
         try {
-            const data = await getFiles(token);
+            const data = selectedWorkspace
+                ? await getFilesByWorkspace(token, selectedWorkspace.id)
+                : await getFiles(token);
             setFiles(data);
         } catch (err) {
             console.error(err);

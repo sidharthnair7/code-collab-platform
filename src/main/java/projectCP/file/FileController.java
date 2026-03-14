@@ -25,7 +25,10 @@ public class FileController {
 
 
     @GetMapping
-    public ResponseEntity<List<FileDTO>> getAllFiles() {
+    public ResponseEntity<List<FileDTO>> getAllFiles(@RequestParam(required = false) Integer workspaceId) {
+        if (workspaceId != null) {
+            return ResponseEntity.ok(fileService.findByWorkspaceId(workspaceId));
+        }
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(currentUsername)
                 .orElseThrow(() -> new RuntimeException("User not found"));

@@ -23,13 +23,12 @@ export default function MainLayout({ token, username, onLogout }) {
     const lastSentRef = useRef(null);
     const selectedFileRef = useRef(null);
 
-    // Load workspaces and files on mount
     useEffect(() => {
         loadWorkspaces();
         loadFiles();
     }, [token]);
 
-    // Auto-refresh files every 3 seconds when a workspace is selected
+
     useEffect(() => {
         if (!selectedWorkspace) return;
         const interval = setInterval(() => {
@@ -38,14 +37,14 @@ export default function MainLayout({ token, username, onLogout }) {
         return () => clearInterval(interval);
     }, [selectedWorkspace]);
 
-    // Reload files when workspace changes
+
     useEffect(() => {
         if (selectedWorkspace) {
             loadFiles();
         }
     }, [selectedWorkspace]);
 
-    // Fetch fresh file content from server when selecting a file
+
     useEffect(() => {
         if (!selectedFile) {
             setFileContent("");
@@ -54,7 +53,7 @@ export default function MainLayout({ token, username, onLogout }) {
         const fetchContent = async () => {
             try {
                 const res = await fetch(
-                    `http://localhost:8080/api/v1/files/${selectedFile.id}`,
+                    `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1"}/files/${selectedFile.id}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 const data = await res.json();
@@ -113,7 +112,7 @@ export default function MainLayout({ token, username, onLogout }) {
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(
-                    `http://localhost:8080/api/v1/files/${selectedFile.id}`,
+                    `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1"}/files/${selectedFile.id}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 const data = await res.json();

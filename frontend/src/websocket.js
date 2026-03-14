@@ -1,13 +1,16 @@
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 
+
+const WS_BASE = import.meta.env.VITE_WS_BASE_URL || "http://localhost:8080";
+
 let stompClient = null;
 let isConnected = false;
 
 export function connectWebSocket(username,fileId, onMessageReceived) {
     console.log('🔵 Attempting to connect to WebSocket...');
 
-    const socket = new SockJS('http://localhost:8080/editor');
+    const socket = new SockJS(`${WS_BASE}/editor`);
     stompClient = Stomp.over(socket);
 
     stompClient.debug = (str) => console.log('STOMP Debug:', str);
@@ -15,10 +18,10 @@ export function connectWebSocket(username,fileId, onMessageReceived) {
     stompClient.connect(
         {},
         (frame) => {
-            console.log('✅ Connected to WebSocket:', frame);
+            console.log(' Connected to WebSocket:', frame);
             isConnected = true;
 
-            console.log('📤 Sending username to session:', username);
+            console.log(' Sending username to session:', username);
             stompClient.send(
                 '/app/chat.addUser',
                 {},
@@ -32,7 +35,7 @@ export function connectWebSocket(username,fileId, onMessageReceived) {
             });
         },
         (error) => {
-            console.error('❌ WebSocket connection error:', error);
+            console.error(' WebSocket connection error:', error);
             isConnected = false;
 
             setTimeout(() => {
@@ -50,7 +53,7 @@ export function connectWebSocket(username,fileId, onMessageReceived) {
 
 export function sendCodeOperation(codeOperation) {
     if (!stompClient || !isConnected) {
-        console.warn('⚠️ WebSocket not connected. Cannot send operation.');
+        console.warn(' WebSocket not connected. Cannot send operation.');
         return;
     }
 

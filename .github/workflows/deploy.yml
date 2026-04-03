@@ -1,10 +1,9 @@
-name: Docker Image CI
+name: CodeCollab CI/CD Pipeline
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+
 
 jobs:
 
@@ -13,6 +12,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Java
+      uses: actions/setup-java@v5
+      with:
+       distribution: 'temurin' # See 'Supported distributions' for available options
+       java-version: '21'
+
+    - name: Build Jar
+      run: ./mvnw clean package -DskipTests
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker Image
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/code-collab-platform:latest .
+
+    - name: Push Image to DockerHub
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/code-collab-platform:latest
+
+    - name: SSH and Deploy to EC2
+      uses: appleboy/ssh-action@v1
+      with:
+         host: "${{ secrets.EC2_HOST }}"
+         username: ${{ secrets.EC2_USER }}
+         key: ${{ secrets.EC2_SSH_KEY }}
+         script: |
+          docker stop code-collab-platform ||true
+          docker rm code-collab-platform  ||true
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/code-collab-platform:latest
+          docker run -d --name code-collab-platform -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/code-collab-platform:latest

@@ -1,17 +1,42 @@
 import { useState } from "react";
 import { signup } from "../api";
 
+const rules = [
+    { id: "length", label: "At least 8 characters", test: (p) => p.length >= 8 },
+    { id: "upper", label: "At least one uppercase letter", test: (p) => /[A-Z]/.test(p) },
+    { id: "number", label: "At least one number", test: (p) => /[0-9]/.test(p) },
+    { id: "special", label: "At least one special character (!@#$...)", test: (p) => /[^A-Za-z0-9]/.test(p) },
+];
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
 export default function Signup({ onSignup, switchMode }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [error, setError] = useState("");
+    const [emailError, setEmailError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showRules, setShowRules] = useState(false);
+
+    const ruleResults = rules.map((r) => ({ ...r, passed: r.test(password) }));
+    const allPassed = ruleResults.every((r) => r.passed);
 
     async function handleSubmit(e) {
         e.preventDefault();
+        if (!isValidEmail(email)) {
+            setEmailError("Please enter a valid email address");
+            return;
+        }
+        if (!allPassed) {
+            setError("Please meet all password requirements.");
+            return;
+        }
         setError("");
+        setEmailError("");
         setLoading(true);
         try {
             const data = await signup(email, password, firstName, lastName);
@@ -28,7 +53,6 @@ export default function Signup({ onSignup, switchMode }) {
             <div style={styles.grid} />
             <div style={styles.blobBlue} />
             <div style={styles.blobPurple} />
-
             <div style={styles.card}>
                 <div style={styles.logoRow}>
                     <div style={styles.logoIcon}>
@@ -56,40 +80,104 @@ export default function Signup({ onSignup, switchMode }) {
                     <div style={styles.row}>
                         <div style={styles.fieldGroup}>
                             <label style={styles.label}>First Name</label>
-                            <input placeholder="John" value={firstName}
-                                   onChange={(e) => setFirstName(e.target.value)} required style={styles.input}
-                                   onFocus={e => e.target.style.borderColor = "#4fc3f7"}
-                                   onBlur={e => e.target.style.borderColor = "#2a2a2a"} />
+                            <input
+                                placeholder="John"
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                                required
+                                style={styles.input}
+                                onFocus={e => e.target.style.borderColor = "#4fc3f7"}
+                                onBlur={e => e.target.style.borderColor = "#2a2a2a"}
+                            />
                         </div>
                         <div style={styles.fieldGroup}>
                             <label style={styles.label}>Last Name</label>
-                            <input placeholder="Doe" value={lastName}
-                                   onChange={(e) => setLastName(e.target.value)} required style={styles.input}
-                                   onFocus={e => e.target.style.borderColor = "#4fc3f7"}
-                                   onBlur={e => e.target.style.borderColor = "#2a2a2a"} />
+                            <input
+                                placeholder="Doe"
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                                required
+                                style={styles.input}
+                                onFocus={e => e.target.style.borderColor = "#4fc3f7"}
+                                onBlur={e => e.target.style.borderColor = "#2a2a2a"}
+                            />
                         </div>
                     </div>
 
                     <div style={styles.fieldGroup}>
                         <label style={styles.label}>Email</label>
-                        <input type="email" placeholder="you@example.com" value={email}
-                               onChange={(e) => setEmail(e.target.value)} required style={styles.input}
-                               onFocus={e => e.target.style.borderColor = "#4fc3f7"}
-                               onBlur={e => e.target.style.borderColor = "#2a2a2a"} />
+                        <input
+                            type="email"
+                            placeholder="you@example.com"
+                            value={email}
+                            onChange={(e) => { setEmail(e.target.value); setEmailError(""); }}
+                            required
+                            style={{
+                                ...styles.input,
+                                borderColor: emailError ? "#f87171" : "#2a2a2a"
+                            }}
+                            onFocus={e => e.target.style.borderColor = "#4fc3f7"}
+                            onBlur={e => {
+                                if (email && !isValidEmail(email)) {
+                                    setEmailError("Please enter a valid email");
+                                    e.target.style.borderColor = "#f87171";
+                                } else {
+                                    e.target.style.borderColor = "#2a2a2a";
+                                }
+                            }}
+                        />
+                        {emailError && (
+                            <span style={{ color: "#f87171", fontSize: 12, marginTop: 4 }}>
+                                {emailError}
+                            </span>
+                        )}
                     </div>
 
                     <div style={styles.fieldGroup}>
                         <label style={styles.label}>Password</label>
-                        <input type="password" placeholder="••••••••" value={password}
-                               onChange={(e) => setPassword(e.target.value)} required style={styles.input}
-                               onFocus={e => e.target.style.borderColor = "#4fc3f7"}
-                               onBlur={e => e.target.style.borderColor = "#2a2a2a"} />
+                        <input
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onFocus={() => setShowRules(true)}
+                            required
+                            style={{
+                                ...styles.input,
+                                borderColor: password.length > 0
+                                    ? allPassed ? "#4ade80" : "#f87171"
+                                    : "#2a2a2a"
+                            }}
+                        />
+                        {showRules && (
+                            <div style={styles.rulesBox}>
+                                {ruleResults.map((r) => (
+                                    <div key={r.id} style={styles.ruleRow}>
+                                        <span style={{
+                                            ...styles.ruleDot,
+                                            background: r.passed ? "#4ade80" : "#333",
+                                            boxShadow: r.passed ? "0 0 6px rgba(74,222,128,0.4)" : "none"
+                                        }} />
+                                        <span style={{ color: r.passed ? "#4ade80" : "#666", fontSize: 12, transition: "color 0.2s" }}>
+                                            {r.label}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    <button type="submit" disabled={loading}
-                            style={{...styles.button, opacity: loading ? 0.7 : 1}}
-                            onMouseEnter={e => !loading && (e.target.style.background = "#29b6f6")}
-                            onMouseLeave={e => e.target.style.background = "#4fc3f7"}>
+                    <button
+                        type="submit"
+                        disabled={loading || !allPassed}
+                        style={{
+                            ...styles.button,
+                            opacity: loading || !allPassed ? 0.5 : 1,
+                            cursor: !allPassed ? "not-allowed" : "pointer"
+                        }}
+                        onMouseEnter={e => allPassed && !loading && (e.target.style.background = "#29b6f6")}
+                        onMouseLeave={e => e.target.style.background = "#4fc3f7"}
+                    >
                         {loading ? "Creating account..." : "Create account"}
                     </button>
                 </form>
@@ -141,4 +229,8 @@ const styles = {
         fontFamily: "inherit", letterSpacing: "-0.01em" },
     switchText: { marginTop: "1.5rem", textAlign: "center", color: "#555", fontSize: 13 },
     switchLink: { color: "#4fc3f7", cursor: "pointer", fontWeight: 600 },
+    rulesBox: { marginTop: 8, background: "#0d0d0d", border: "1px solid #1e1e1e",
+        borderRadius: 8, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 6 },
+    ruleRow: { display: "flex", alignItems: "center", gap: 8 },
+    ruleDot: { width: 8, height: 8, borderRadius: "50%", flexShrink: 0, transition: "background 0.2s" },
 };

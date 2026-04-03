@@ -48,4 +48,10 @@ jobs:
           docker stop code-collab-platform ||true
           docker rm code-collab-platform  ||true
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/code-collab-platform:latest
-          docker run -d --name code-collab-platform -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/code-collab-platform:latest
+          docker run -d --name code-collab-platform -p 8080:8080 \
+            -e DATASOURCE_URL="${{ secrets.DATASOURCE_URL }}" \
+            -e DATASOURCE_USER="${{ secrets.DATASOURCE_USER }}" \
+            -e DATASOURCE_PASSWORD="${{ secrets.DATASOURCE_PASSWORD }}" \
+            -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+            -e FRONTEND_URL="${{ secrets.FRONTEND_URL }}" \
+            ${{ secrets.DOCKERHUB_USERNAME }}/code-collab-platform:latest

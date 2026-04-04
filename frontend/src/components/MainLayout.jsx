@@ -3,6 +3,159 @@ import { getFiles, getWorkspaces, createFile, createWorkspace, deleteFile, updat
 import { connectWebSocket, sendCodeOperation, disconnectWebSocket } from "../websocket";
 import Editor from "@monaco-editor/react";
 
+const S = {
+    app: {
+        display: "flex", flexDirection: "column", height: "100vh", width: "100vw",
+        background: "#0d0d0d", fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
+        color: "#cdd6f4", overflow: "hidden",
+    },
+    // TOP BAR
+    topBar: {
+        height: 48, minHeight: 48, display: "flex", alignItems: "center",
+        justifyContent: "space-between", padding: "0 16px",
+        background: "#111111", borderBottom: "1px solid #1e1e2e",
+        zIndex: 100,
+    },
+    topBarLeft: { display: "flex", alignItems: "center", gap: 10 },
+    logoIcon: {
+        width: 28, height: 28, background: "rgba(79,195,247,0.12)",
+        border: "1px solid rgba(79,195,247,0.25)", borderRadius: 6,
+        display: "flex", alignItems: "center", justifyContent: "center",
+    },
+    logoText: { color: "#cdd6f4", fontSize: 13, fontWeight: 700, letterSpacing: "-0.01em" },
+    topBarRight: { display: "flex", alignItems: "center", gap: 8 },
+    userBadge: {
+        display: "flex", alignItems: "center", gap: 6, padding: "4px 10px",
+        background: "rgba(255,255,255,0.04)", border: "1px solid #1e1e2e",
+        borderRadius: 6, fontSize: 12, color: "#888",
+    },
+    wsBadge: (connected) => ({
+        display: "flex", alignItems: "center", gap: 5, padding: "4px 10px",
+        background: connected ? "rgba(74,222,128,0.08)" : "rgba(255,255,255,0.04)",
+        border: `1px solid ${connected ? "rgba(74,222,128,0.2)" : "#1e1e2e"}`,
+        borderRadius: 6, fontSize: 11, color: connected ? "#4ade80" : "#555",
+        fontWeight: 600,
+    }),
+    wsDot: (connected) => ({
+        width: 6, height: 6, borderRadius: "50%",
+        background: connected ? "#4ade80" : "#333",
+        boxShadow: connected ? "0 0 6px #4ade80" : "none",
+    }),
+    signOutBtn: {
+        padding: "5px 12px", background: "transparent", color: "#555",
+        border: "1px solid #1e1e2e", borderRadius: 6, cursor: "pointer",
+        fontSize: 12, fontFamily: "inherit",
+    },
+    saveBtn: {
+        padding: "5px 14px", background: "#4fc3f7", color: "#000",
+        border: "none", borderRadius: 6, cursor: "pointer",
+        fontSize: 12, fontWeight: 700, fontFamily: "inherit",
+    },
+
+    // BODY
+    body: { display: "flex", flex: 1, overflow: "hidden" },
+
+    // LEFT SIDEBAR
+    sidebar: {
+        width: 240, minWidth: 240, display: "flex", flexDirection: "column",
+        background: "#111111", borderRight: "1px solid #1e1e2e", overflow: "hidden",
+    },
+    sideSection: { padding: "12px 12px 8px" },
+    sideLabel: {
+        fontSize: 10, fontWeight: 700, color: "#444", letterSpacing: "0.1em",
+        textTransform: "uppercase", marginBottom: 8, padding: "0 4px",
+    },
+    workspaceItem: (selected) => ({
+        padding: "8px 10px", borderRadius: 6, cursor: "pointer", marginBottom: 2,
+        background: selected ? "rgba(79,195,247,0.1)" : "transparent",
+        border: `1px solid ${selected ? "rgba(79,195,247,0.2)" : "transparent"}`,
+        transition: "all 0.15s",
+    }),
+    workspaceName: (selected) => ({
+        fontSize: 12, color: selected ? "#4fc3f7" : "#888", fontWeight: selected ? 600 : 400,
+        display: "block", marginBottom: 2,
+    }),
+    workspaceId: {
+        fontSize: 10, color: "#444", display: "flex", alignItems: "center", gap: 4,
+    },
+    copyBtn: {
+        fontSize: 10, color: "#4fc3f7", cursor: "pointer", background: "none",
+        border: "none", padding: 0, fontFamily: "inherit",
+    },
+    divider: { height: 1, background: "#1e1e2e", margin: "4px 12px" },
+    inputRow: { padding: "8px 12px" },
+    sideInput: {
+        width: "100%", padding: "7px 10px", background: "#0d0d0d",
+        border: "1px solid #1e1e2e", borderRadius: 6, color: "#cdd6f4",
+        fontSize: 12, outline: "none", fontFamily: "inherit", boxSizing: "border-box",
+        marginBottom: 6,
+    },
+    createBtn: (color) => ({
+        width: "100%", padding: "7px", background: color || "#4fc3f7",
+        color: color ? "#fff" : "#000", border: "none", borderRadius: 6,
+        cursor: "pointer", fontSize: 12, fontWeight: 700, fontFamily: "inherit",
+    }),
+
+    // EDITOR
+    editorArea: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" },
+    tabBar: {
+        height: 36, minHeight: 36, display: "flex", alignItems: "center",
+        background: "#0d0d0d", borderBottom: "1px solid #1e1e2e", paddingLeft: 0,
+        overflowX: "auto",
+    },
+    tab: (active) => ({
+        display: "flex", alignItems: "center", gap: 6,
+        padding: "0 16px", height: "100%", fontSize: 12,
+        color: active ? "#cdd6f4" : "#555", cursor: "pointer",
+        background: active ? "#1e1e2e" : "transparent",
+        borderRight: "1px solid #1e1e2e",
+        borderBottom: active ? "1px solid #4fc3f7" : "1px solid transparent",
+        whiteSpace: "nowrap", userSelect: "none",
+    }),
+    emptyEditor: {
+        flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", background: "#0d0d0d", color: "#333",
+        gap: 12,
+    },
+    emptyIcon: { opacity: 0.3 },
+    emptyText: { fontSize: 13, color: "#444" },
+
+    // RIGHT SIDEBAR
+    rightPanel: {
+        width: 220, minWidth: 220, display: "flex", flexDirection: "column",
+        background: "#111111", borderLeft: "1px solid #1e1e2e", overflow: "hidden",
+    },
+    rightHeader: {
+        padding: "10px 12px", borderBottom: "1px solid #1e1e2e",
+        fontSize: 10, fontWeight: 700, color: "#444",
+        letterSpacing: "0.1em", textTransform: "uppercase",
+    },
+    fileItem: (selected) => ({
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "7px 10px", margin: "2px 6px", borderRadius: 5, cursor: "pointer",
+        background: selected ? "rgba(79,195,247,0.1)" : "transparent",
+        border: `1px solid ${selected ? "rgba(79,195,247,0.15)" : "transparent"}`,
+        transition: "all 0.15s",
+    }),
+    fileName: (selected) => ({
+        fontSize: 12, color: selected ? "#4fc3f7" : "#888",
+        fontWeight: selected ? 600 : 400, flex: 1, overflow: "hidden",
+        textOverflow: "ellipsis", whiteSpace: "nowrap",
+    }),
+    deleteBtn: {
+        width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center",
+        background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)",
+        borderRadius: 4, color: "#ef4444", cursor: "pointer", fontSize: 10,
+        flexShrink: 0, fontFamily: "inherit",
+    },
+    // STATUS BAR
+    statusBar: {
+        height: 22, display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 12px", background: "#0a0a0a", borderTop: "1px solid #1e1e2e",
+        fontSize: 10, color: "#444",
+    },
+};
+
 export default function MainLayout({ token, username, onLogout }) {
     const [joinId, setJoinId] = useState("");
     const [workspaces, setWorkspaces] = useState([]);
@@ -14,6 +167,7 @@ export default function MainLayout({ token, username, onLogout }) {
     const [newFileName, setNewFileName] = useState("");
     const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
     const [otherCursors, setOtherCursors] = useState({});
+    const [copied, setCopied] = useState(null);
 
     const myColorRef = useRef(`hsl(${Math.random() * 360}, 70%, 60%)`);
     const editorRef = useRef(null);
@@ -23,33 +177,22 @@ export default function MainLayout({ token, username, onLogout }) {
     const lastSentRef = useRef(null);
     const selectedFileRef = useRef(null);
 
-    useEffect(() => {
-        loadWorkspaces();
-        loadFiles();
-    }, [token]);
+    const workspaceFiles = selectedWorkspace
+        ? files.filter(f => f.workspaceId === selectedWorkspace.id || f.workspace?.id === selectedWorkspace.id)
+        : [];
 
+    useEffect(() => { loadWorkspaces(); loadFiles(); }, [token]);
 
     useEffect(() => {
         if (!selectedWorkspace) return;
-        const interval = setInterval(() => {
-            loadFiles();
-        }, 3000);
+        const interval = setInterval(() => { loadFiles(); }, 3000);
         return () => clearInterval(interval);
     }, [selectedWorkspace]);
 
+    useEffect(() => { if (selectedWorkspace) loadFiles(); }, [selectedWorkspace]);
 
     useEffect(() => {
-        if (selectedWorkspace) {
-            loadFiles();
-        }
-    }, [selectedWorkspace]);
-
-
-    useEffect(() => {
-        if (!selectedFile) {
-            setFileContent("");
-            return;
-        }
+        if (!selectedFile) { setFileContent(""); return; }
         const fetchContent = async () => {
             try {
                 const res = await fetch(
@@ -58,57 +201,36 @@ export default function MainLayout({ token, username, onLogout }) {
                 );
                 const data = await res.json();
                 setFileContent(data.content ?? "");
-            } catch (err) {
-                setFileContent(selectedFile.content ?? "");
-            }
+            } catch { setFileContent(selectedFile.content ?? ""); }
         };
         fetchContent();
     }, [selectedFile]);
 
-    // Keep selectedFileRef in sync
-    useEffect(() => {
-        selectedFileRef.current = selectedFile;
-    }, [selectedFile]);
+    useEffect(() => { selectedFileRef.current = selectedFile; }, [selectedFile]);
 
-    // Connect/disconnect WebSocket when file changes
     useEffect(() => {
-        if (!selectedFile) {
-            disconnectWebSocket();
-            setIsWebSocketConnected(false);
-            return;
-        }
+        if (!selectedFile) { disconnectWebSocket(); setIsWebSocketConnected(false); return; }
         connectWebSocket(usernameRef.current, selectedFile.id, handleIncomingCodeOperation);
         setIsWebSocketConnected(true);
-        return () => {
-            disconnectWebSocket();
-            setIsWebSocketConnected(false);
-        };
+        return () => { disconnectWebSocket(); setIsWebSocketConnected(false); };
     }, [selectedFile]);
 
-    // Auto-save: only save if you own the workspace (3 second debounce)
     useEffect(() => {
         if (!selectedFile || fileContent === null || fileContent === undefined) return;
         if (!selectedWorkspace) return;
         const isOwner = selectedWorkspace.owner?.email === username;
         if (!isOwner) return;
-
         const saveTimer = setTimeout(async () => {
-            try {
-                await updateFileContent(token, selectedFile.id, fileContent);
-            } catch (err) {
-                console.error("Auto-save failed:", err);
-            }
+            try { await updateFileContent(token, selectedFile.id, fileContent); }
+            catch (err) { console.error("Auto-save failed:", err); }
         }, 3000);
-
         return () => clearTimeout(saveTimer);
     }, [fileContent]);
 
-    // For non-owners: poll file content every 3 seconds to stay in sync
     useEffect(() => {
         if (!selectedFile || !selectedWorkspace) return;
         const isOwner = selectedWorkspace.owner?.email === username;
         if (isOwner) return;
-
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(
@@ -117,11 +239,8 @@ export default function MainLayout({ token, username, onLogout }) {
                 );
                 const data = await res.json();
                 setFileContent(data.content ?? "");
-            } catch (err) {
-                console.error("Poll content failed:", err);
-            }
+            } catch (err) { console.error("Poll content failed:", err); }
         }, 3000);
-
         return () => clearInterval(interval);
     }, [selectedFile, selectedWorkspace]);
 
@@ -129,15 +248,10 @@ export default function MainLayout({ token, username, onLogout }) {
         if (!selectedFileRef.current) return;
         if (operation.fileId !== selectedFileRef.current.id) return;
         if (operation.clientId === clientIdRef.current) return;
-
         if (operation.codeTextType === "CURSOR_MOVED") {
             setOtherCursors(prev => ({
                 ...prev,
-                [operation.clientId]: {
-                    position: operation.position,
-                    color: operation.color,
-                    username: operation.username
-                }
+                [operation.clientId]: { position: operation.position, color: operation.color, username: operation.username }
             }));
             return;
         }
@@ -149,87 +263,74 @@ export default function MainLayout({ token, username, onLogout }) {
         setFileContent((prev) => {
             const safeContent = prev ?? "";
             switch (codeTextType) {
-                case "TEXT_INSERTED": {
-                    const before = safeContent.slice(0, position);
-                    const after = safeContent.slice(position);
-                    return before + (codeText ?? "") + after;
-                }
-                case "TEXT_DELETED": {
-                    const before = safeContent.slice(0, position);
-                    const after = safeContent.slice(position + (length ?? 0));
-                    return before + after;
-                }
-                case "TEXT_REPLACED": {
-                    const before = safeContent.slice(0, position);
-                    const after = safeContent.slice(position + (length ?? 0));
-                    return before + (codeText ?? "") + after;
-                }
-                default:
-                    return safeContent;
+                case "TEXT_INSERTED": return safeContent.slice(0, position) + (codeText ?? "") + safeContent.slice(position);
+                case "TEXT_DELETED": return safeContent.slice(0, position) + safeContent.slice(position + (length ?? 0));
+                case "TEXT_REPLACED": return safeContent.slice(0, position) + (codeText ?? "") + safeContent.slice(position + (length ?? 0));
+                default: return safeContent;
             }
         });
-    }
-
-    function handleEditorChange(value, event) {
-        setFileContent(value);
-        if (!event || !selectedFile) return;
-        const changes = event.changes;
-        if (!changes?.length) return;
-        const change = changes[0];
-        const position = editorRef.current.getModel().getOffsetAt(change.range.getStartPosition());
-
-        let operation;
-        if (change.text && change.rangeLength === 0) {
-            operation = { codeTextType: "TEXT_INSERTED", codeText: change.text, position, length: 0 };
-        } else if (!change.text && change.rangeLength > 0) {
-            operation = { codeTextType: "TEXT_DELETED", codeText: "", position, length: change.rangeLength };
-        } else {
-            operation = { codeTextType: "TEXT_REPLACED", codeText: change.text, position, length: change.rangeLength };
-        }
-
-        operation.fileId = selectedFile.id;
-        operation.username = usernameRef.current;
-        operation.clientId = clientIdRef.current;
-        operation.timestamp = Date.now();
-        sendCodeOperation(operation);
     }
 
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
         monacoRef.current = monaco;
         editor.onDidChangeCursorPosition((e) => {
-            if (!selectedFile) return;
-            const cursorOperation = {
-                codeTextType: "CURSOR_MOVED",
-                position: editor.getModel().getOffsetAt(e.position),
-                fileId: selectedFile.id,
-                username: usernameRef.current,
-                clientId: clientIdRef.current,
-                timestamp: Date.now(),
-                color: myColorRef.current
+            if (!selectedFileRef.current) return;
+            const model = editor.getModel();
+            if (!model) return;
+            const offset = model.getOffsetAt(e.position);
+            const op = {
+                clientId: clientIdRef.current, username: usernameRef.current,
+                fileId: selectedFileRef.current.id, codeTextType: "CURSOR_MOVED",
+                position: offset, color: myColorRef.current,
             };
-            sendCodeOperation(cursorOperation);
+            sendCodeOperation(op);
         });
     }
 
-    async function loadWorkspaces() {
-        try {
-            const data = await getWorkspaces(token);
-            setWorkspaces(data);
-        } catch (err) {
-            console.error(err);
+    function handleEditorChange(value, event) {
+        setFileContent(value ?? "");
+        if (!selectedFileRef.current) return;
+        const changes = event.changes;
+        for (const change of changes) {
+            const op = {
+                clientId: clientIdRef.current, username: usernameRef.current,
+                fileId: selectedFileRef.current.id, color: myColorRef.current,
+                position: change.rangeOffset,
+            };
+            if (change.text === "") {
+                op.codeTextType = "TEXT_DELETED";
+                op.length = change.rangeLength;
+            } else if (change.rangeLength === 0) {
+                op.codeTextType = "TEXT_INSERTED";
+                op.codeText = change.text;
+            } else {
+                op.codeTextType = "TEXT_REPLACED";
+                op.codeText = change.text;
+                op.length = change.rangeLength;
+            }
+            if (JSON.stringify(op) !== JSON.stringify(lastSentRef.current)) {
+                sendCodeOperation(op);
+                lastSentRef.current = op;
+            }
         }
+    }
+
+    async function loadWorkspaces() {
+        try { const data = await getWorkspaces(token); setWorkspaces(data); }
+        catch (err) { console.error("Failed to load workspaces:", err); }
     }
 
     async function loadFiles() {
         try {
-            const data = selectedWorkspace
-                ? await getFilesByWorkspace(token, selectedWorkspace.id)
-                : await getFiles(token);
-            setFiles(data);
-        } catch (err) {
-            console.error(err);
-        }
+            if (selectedWorkspace) {
+                const data = await getFilesByWorkspace(token, selectedWorkspace.id);
+                setFiles(data);
+            } else {
+                const data = await getFiles(token);
+                setFiles(data);
+            }
+        } catch (err) { console.error("Failed to load files:", err); }
     }
 
     async function handleCreateWorkspace() {
@@ -238,9 +339,7 @@ export default function MainLayout({ token, username, onLogout }) {
             await createWorkspace(token, newWorkspaceName);
             setNewWorkspaceName("");
             await loadWorkspaces();
-        } catch (err) {
-            alert(err.message);
-        }
+        } catch (err) { console.error("Failed to create workspace:", err); }
     }
 
     async function handleCreateFile() {
@@ -249,233 +348,234 @@ export default function MainLayout({ token, username, onLogout }) {
             await createFile(token, newFileName, selectedWorkspace.id);
             setNewFileName("");
             await loadFiles();
-        } catch (err) {
-            alert(err.message);
-        }
+        } catch (err) { console.error("Failed to create file:", err); }
+    }
+
+    async function handleDeleteFile(id) {
+        try {
+            await deleteFile(token, id);
+            if (selectedFile?.id === id) setSelectedFile(null);
+            await loadFiles();
+        } catch (err) { console.error("Failed to delete file:", err); }
     }
 
     async function handleSaveFile() {
         if (!selectedFile) return;
-        try {
-            await updateFileContent(token, selectedFile.id, fileContent);
-            alert("File saved!");
-        } catch (err) {
-            alert(err.message);
-        }
+        try { await updateFileContent(token, selectedFile.id, fileContent); }
+        catch (err) { console.error("Save failed:", err); }
     }
 
-    async function handleDeleteFile(fileId) {
-        if (!confirm("Delete this file?")) return;
-        try {
-            await deleteFile(token, fileId);
-            if (selectedFile?.id === fileId) {
-                setSelectedFile(null);
-                setFileContent("");
-            }
-            await loadFiles();
-        } catch (err) {
-            alert(err.message);
-        }
+    function copyId(id) {
+        navigator.clipboard.writeText(String(id));
+        setCopied(id);
+        setTimeout(() => setCopied(null), 1500);
     }
 
-    const workspaceFiles = selectedWorkspace
-        ? files.filter((f) => f.workspaceId === selectedWorkspace.id)
-        : [];
+    const getFileIcon = (name) => {
+        if (!name) return "📄";
+        const ext = name.split(".").pop()?.toLowerCase();
+        const icons = { js: "🟨", jsx: "⚛️", ts: "🔷", tsx: "⚛️", py: "🐍", java: "☕", css: "🎨", html: "🌐", json: "📋", md: "📝" };
+        return icons[ext] || "📄";
+    };
 
     return (
-        <div style={{ display: "flex", height: "100vh", width: "100vw" }}>
-            {/* LEFT - Workspaces */}
-            <div style={{
-                width: "200px", minWidth: "200px", borderRight: "1px solid #333",
-                padding: "1rem", background: "#1e1e1e", color: "#fff",
-                display: "flex", flexDirection: "column", overflowY: "auto"
-            }}>
-                <h3 style={{ marginTop: 0, color: "#fff" }}>Workspaces</h3>
-
-                {isWebSocketConnected && (
-                    <div style={{
-                        padding: "0.5rem", marginBottom: "1rem", background: "#4caf50",
-                        color: "white", borderRadius: "4px", fontSize: "12px", textAlign: "center"
-                    }}>
-                        ✓ Live Connected
+        <div style={S.app}>
+            {/* TOP BAR */}
+            <div style={S.topBar}>
+                <div style={S.topBarLeft}>
+                    <div style={S.logoIcon}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M8 3L3 8l5 5M16 3l5 5-5 5M14 3l-4 18" stroke="#4fc3f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
                     </div>
-                )}
-
-                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                    {workspaces.map((ws) => (
-                        <div key={ws.id} onClick={() => setSelectedWorkspace(ws)} style={{
-                            padding: "0.75rem", margin: "0.25rem 0",
-                            background: selectedWorkspace?.id === ws.id ? "#007acc" : "#252526",
-                            border: "1px solid #333", cursor: "pointer", borderRadius: "4px",
-                            color: "#fff", transition: "background 0.2s"
-                        }}>
-                            {ws.workSpaceName}
-                            <div style={{ fontSize: "10px", color: "#aaa", marginTop: "2px", display: "flex", alignItems: "center", gap: "4px" }}>
-                                <span>ID: {ws.id}</span>
-                                <span onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(String(ws.id)); alert("ID copied!"); }}
-                                      style={{ cursor: "pointer", color: "#007acc" }}>copy</span>
-                            </div>
-                        </div>
-                    ))}
+                    <span style={S.logoText}>CodeCollab</span>
+                    <span style={{ color: "#333", fontSize: 12, marginLeft: 4 }}>/</span>
+                    <span style={{ color: "#555", fontSize: 12 }}>{selectedWorkspace?.workSpaceName || "No workspace"}</span>
                 </div>
-
-                <div style={{ marginTop: "1.5rem" }}>
-                    <input value={newWorkspaceName} onChange={(e) => setNewWorkspaceName(e.target.value)}
-                           onKeyDown={(e) => e.key === "Enter" && handleCreateWorkspace()}
-                           placeholder="New workspace"
-                           style={{ width: "100%", padding: "0.75rem", marginBottom: "0.5rem", background: "#252526", border: "1px solid #333", color: "#fff", borderRadius: "4px" }}
-                    />
-                    <button onClick={handleCreateWorkspace} style={{
-                        width: "100%", padding: "0.75rem", cursor: "pointer",
-                        background: "#007acc", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold"
-                    }}>
-                        Create Workspace
-                    </button>
-                </div>
-
-                <div style={{ marginTop: "1rem" }}>
-                    <input value={joinId} onChange={(e) => setJoinId(e.target.value)}
-                           placeholder="Join by workspace ID"
-                           style={{ width: "100%", padding: "0.75rem", marginBottom: "0.5rem", background: "#252526", border: "1px solid #333", color: "#fff", borderRadius: "4px" }}
-                    />
-                    <button onClick={async () => {
-                        if (!joinId.trim()) return;
-                        try {
-                            const { getWorkspaceById } = await import("../api");
-                            const ws = await getWorkspaceById(token, parseInt(joinId));
-                            setWorkspaces(prev => {
-                                if (prev.find(w => w.id === ws.id)) return prev;
-                                return [...prev, ws];
-                            });
-                            setSelectedWorkspace(ws);
-                            setJoinId("");
-                        } catch (err) {
-                            alert("Workspace not found: " + err.message);
-                        }
-                    }} style={{
-                        width: "100%", padding: "0.75rem", cursor: "pointer",
-                        background: "#6a0dad", color: "white", border: "none", borderRadius: "4px", fontWeight: "bold"
-                    }}>
-                        Join Workspace
-                    </button>
+                <div style={S.topBarRight}>
+                    <div style={S.wsBadge(isWebSocketConnected)}>
+                        <div style={S.wsDot(isWebSocketConnected)} />
+                        {isWebSocketConnected ? "Live" : "Offline"}
+                    </div>
+                    <div style={S.userBadge}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="8" r="4" stroke="#888" strokeWidth="2"/>
+                            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#888" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                        {username}
+                    </div>
+                    {selectedFile && (
+                        <button onClick={handleSaveFile} style={S.saveBtn}>Save</button>
+                    )}
+                    <button onClick={onLogout} style={S.signOutBtn}>Sign out</button>
                 </div>
             </div>
 
-            {/* MIDDLE - Monaco Editor */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative", minWidth: "600px" }}>
-                <div style={{
-                    padding: "1rem", borderBottom: "1px solid #333", background: "#252526",
-                    color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center"
-                }}>
-                    <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-                        {selectedFile ? selectedFile.fileName : "No file selected"}
-                    </span>
-                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                        {selectedFile && (
-                            <button onClick={handleSaveFile} style={{
-                                padding: "0.5rem 1.5rem", background: "#007acc", color: "white",
-                                border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold"
-                            }}>
-                                Save
-                            </button>
-                        )}
-                        <button onClick={onLogout} style={{
-                            padding: "0.5rem 1rem", background: "transparent", color: "#888",
-                            border: "1px solid #333", borderRadius: "4px", cursor: "pointer", fontSize: "13px"
-                        }}>
-                            Sign out
-                        </button>
-                    </div>
-                </div>
-
-                {selectedFile ? (
-                    <div style={{ flex: 1, position: "relative", background: "#1e1e1e" }}>
-                        <Editor
-                            height="100%"
-                            language="javascript"
-                            value={fileContent}
-                            onChange={handleEditorChange}
-                            onMount={handleEditorDidMount}
-                            theme="vs-dark"
-                            options={{
-                                minimap: { enabled: true }, fontSize: 14, wordWrap: "on",
-                                automaticLayout: true, cursorBlinking: "smooth",
-                                cursorSmoothCaretAnimation: "on", renderLineHighlight: "all",
-                                scrollBeyondLastLine: false, padding: { top: 16, bottom: 16 },
-                                lineNumbers: "on", glyphMargin: true, folding: true,
-                                lineDecorationsWidth: 10, lineNumbersMinChars: 3
-                            }}
-                        />
-                    </div>
-                ) : (
-                    <div style={{
-                        flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-                        color: "#666", background: "#1e1e1e", fontSize: "18px"
-                    }}>
-                        Select a file to start editing
-                    </div>
-                )}
-            </div>
-
-            {/* RIGHT - Files */}
-            <div style={{
-                width: "280px", minWidth: "280px", borderLeft: "1px solid #333",
-                padding: "1rem", background: "#1e1e1e", color: "#fff", overflowY: "auto"
-            }}>
-                <h3 style={{ marginTop: 0, color: "#fff" }}>Files</h3>
-
-                {selectedWorkspace ? (
-                    <>
-                        <div style={{ maxHeight: "400px", overflowY: "auto", marginBottom: "1rem" }}>
-                            {workspaceFiles.map((file) => (
-                                <div key={file.id} style={{
-                                    display: "flex", justifyContent: "space-between", alignItems: "center",
-                                    padding: "0.75rem", margin: "0.35rem 0", border: "1px solid #333",
-                                    borderRadius: "4px",
-                                    background: selectedFile?.id === file.id ? "#252526" : "transparent",
-                                    transition: "background 0.2s"
-                                }}>
-                                    <span onClick={() => setSelectedFile(file)} style={{
-                                        cursor: "pointer", flex: 1,
-                                        fontWeight: selectedFile?.id === file.id ? "bold" : "normal",
-                                        color: selectedFile?.id === file.id ? "#4fc3f7" : "#fff",
-                                        fontSize: "14px"
-                                    }}>
-                                        {file.fileName}
+            {/* BODY */}
+            <div style={S.body}>
+                {/* LEFT SIDEBAR */}
+                <div style={S.sidebar}>
+                    <div style={{ flex: 1, overflowY: "auto" }}>
+                        <div style={S.sideSection}>
+                            <div style={S.sideLabel}>Workspaces</div>
+                            {workspaces.length === 0 && (
+                                <div style={{ fontSize: 11, color: "#333", padding: "4px" }}>No workspaces yet</div>
+                            )}
+                            {workspaces.map(ws => (
+                                <div key={ws.id} onClick={() => setSelectedWorkspace(ws)}
+                                     style={S.workspaceItem(selectedWorkspace?.id === ws.id)}>
+                                    <span style={S.workspaceName(selectedWorkspace?.id === ws.id)}>
+                                        {ws.workSpaceName}
                                     </span>
-                                    <button onClick={() => handleDeleteFile(file.id)} style={{
-                                        marginLeft: "0.5rem", padding: "0.25rem 0.5rem",
-                                        background: "#d32f2f", color: "white", border: "none",
-                                        borderRadius: "3px", cursor: "pointer", fontSize: "12px"
-                                    }}>
-                                        X
-                                    </button>
+                                    <div style={S.workspaceId}>
+                                        <span>ID: {ws.id}</span>
+                                        <button onClick={(e) => { e.stopPropagation(); copyId(ws.id); }}
+                                                style={S.copyBtn}>
+                                            {copied === ws.id ? "✓" : "copy"}
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div style={{ marginTop: "auto" }}>
-                            <input value={newFileName} onChange={(e) => setNewFileName(e.target.value)}
-                                   placeholder="New file name"
-                                   style={{
-                                       width: "100%", padding: "0.75rem", marginBottom: "0.5rem",
-                                       background: "#252526", border: "1px solid #333", color: "#fff", borderRadius: "4px"
-                                   }}
-                            />
-                            <button onClick={handleCreateFile} style={{
-                                width: "100%", padding: "0.75rem", background: "#388e3c",
-                                color: "white", border: "none", borderRadius: "4px",
-                                cursor: "pointer", fontWeight: "bold"
-                            }}>
-                                Create File
+                        <div style={S.divider} />
+
+                        <div style={S.inputRow}>
+                            <input value={newWorkspaceName} onChange={e => setNewWorkspaceName(e.target.value)}
+                                   onKeyDown={e => e.key === "Enter" && handleCreateWorkspace()}
+                                   placeholder="New workspace name"
+                                   style={S.sideInput} />
+                            <button onClick={handleCreateWorkspace} style={S.createBtn("#4fc3f7")}>
+                                + Create Workspace
                             </button>
                         </div>
-                    </>
-                ) : (
-                    <div style={{ color: "#666", textAlign: "center", padding: "2rem 0", fontSize: "14px" }}>
-                        Select a workspace first to see files
+
+                        <div style={S.divider} />
+
+                        <div style={S.inputRow}>
+                            <input value={joinId} onChange={e => setJoinId(e.target.value)}
+                                   placeholder="Join by workspace ID"
+                                   style={S.sideInput} />
+                            <button onClick={async () => {
+                                if (!joinId.trim()) return;
+                                try {
+                                    const { getWorkspaceById } = await import("../api");
+                                    const ws = await getWorkspaceById(token, parseInt(joinId));
+                                    setWorkspaces(prev => prev.find(w => w.id === ws.id) ? prev : [...prev, ws]);
+                                    setSelectedWorkspace(ws);
+                                    setJoinId("");
+                                } catch (err) { alert("Workspace not found"); }
+                            }} style={S.createBtn("#7c3aed")}>
+                                Join Workspace
+                            </button>
+                        </div>
                     </div>
-                )}
+                </div>
+
+                {/* EDITOR AREA */}
+                <div style={S.editorArea}>
+                    {/* TAB BAR */}
+                    <div style={S.tabBar}>
+                        {selectedFile ? (
+                            <div style={S.tab(true)}>
+                                <span>{getFileIcon(selectedFile.fileName)}</span>
+                                <span>{selectedFile.fileName}</span>
+                                <span style={{ fontSize: 10, color: "#333", marginLeft: 2 }}>●</span>
+                            </div>
+                        ) : (
+                            <div style={{ padding: "0 16px", fontSize: 12, color: "#333", display: "flex", alignItems: "center", height: "100%" }}>
+                                No file open
+                            </div>
+                        )}
+                    </div>
+
+                    {selectedFile ? (
+                        <div style={{ flex: 1, position: "relative" }}>
+                            <Editor
+                                height="100%"
+                                language="javascript"
+                                value={fileContent}
+                                onChange={handleEditorChange}
+                                onMount={handleEditorDidMount}
+                                theme="vs-dark"
+                                options={{
+                                    minimap: { enabled: true }, fontSize: 14, wordWrap: "on",
+                                    automaticLayout: true, cursorBlinking: "smooth",
+                                    cursorSmoothCaretAnimation: "on", renderLineHighlight: "all",
+                                    scrollBeyondLastLine: false, padding: { top: 16, bottom: 16 },
+                                    lineNumbers: "on", glyphMargin: true, folding: true,
+                                    lineDecorationsWidth: 10, lineNumbersMinChars: 3,
+                                    fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                                }}
+                            />
+                        </div>
+                    ) : (
+                        <div style={S.emptyEditor}>
+                            <div style={S.emptyIcon}>
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8 3L3 8l5 5M16 3l5 5-5 5M14 3l-4 18" stroke="#333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </div>
+                            <div style={S.emptyText}>Select a file to start editing</div>
+                            <div style={{ fontSize: 11, color: "#333" }}>
+                                {selectedWorkspace ? "Pick a file from the panel →" : "← Select a workspace first"}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* RIGHT PANEL - FILES */}
+                <div style={S.rightPanel}>
+                    <div style={S.rightHeader}>
+                        {selectedWorkspace ? `Files — ${selectedWorkspace.workSpaceName}` : "Files"}
+                    </div>
+
+                    {selectedWorkspace ? (
+                        <>
+                            <div style={{ flex: 1, overflowY: "auto", padding: "6px 0" }}>
+                                {workspaceFiles.length === 0 && (
+                                    <div style={{ fontSize: 11, color: "#333", padding: "8px 16px" }}>No files yet</div>
+                                )}
+                                {workspaceFiles.map(file => (
+                                    <div key={file.id} style={S.fileItem(selectedFile?.id === file.id)}
+                                         onClick={() => setSelectedFile(file)}>
+                                        <span style={{ marginRight: 6, fontSize: 12 }}>{getFileIcon(file.fileName)}</span>
+                                        <span style={S.fileName(selectedFile?.id === file.id)}>{file.fileName}</span>
+                                        <button onClick={e => { e.stopPropagation(); handleDeleteFile(file.id); }}
+                                                style={S.deleteBtn}>✕</button>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{ padding: "8px 12px", borderTop: "1px solid #1e1e2e" }}>
+                                <input value={newFileName} onChange={e => setNewFileName(e.target.value)}
+                                       onKeyDown={e => e.key === "Enter" && handleCreateFile()}
+                                       placeholder="New file name"
+                                       style={{ ...S.sideInput, marginBottom: 6 }} />
+                                <button onClick={handleCreateFile} style={S.createBtn("#22c55e")}>
+                                    + Create File
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <div style={{ padding: "16px 12px", fontSize: 11, color: "#333", textAlign: "center" }}>
+                            Select a workspace to see files
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* STATUS BAR */}
+            <div style={S.statusBar}>
+                <div style={{ display: "flex", gap: 16 }}>
+                    <span>CodeCollab Platform</span>
+                    {selectedWorkspace && <span>Workspace: {selectedWorkspace.workSpaceName}</span>}
+                </div>
+                <div style={{ display: "flex", gap: 16 }}>
+                    {selectedFile && <span>{getFileIcon(selectedFile.fileName)} {selectedFile.fileName}</span>}
+                    <span>{isWebSocketConnected ? "🟢 Connected" : "⚫ Offline"}</span>
+                    <span>{username}</span>
+                </div>
             </div>
         </div>
     );

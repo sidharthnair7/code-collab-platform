@@ -56,7 +56,7 @@ Actions CI/CD pipeline to AWS EC2.
 
 ## 📸 Screenshots
 
-![Login Screen](assets/Capture.png)
+![Login Screen](assets/login-screen.PNG)
 
 ---
 

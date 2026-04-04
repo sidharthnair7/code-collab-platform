@@ -7,7 +7,15 @@ workspaces, WebSocket sync, and a full CI/CD deployment pipeline.
 🔴 **[Live Demo](https://sidharthnair-dev.netlify.app/)**
 
 ---
+## 💡 Why I Built This
 
+During university group projects, my teammates and I wanted 
+to write code together live — but GitHub wasn't always 
+beginner-friendly when people were still learning branches 
+and commits. I built CodeCollab to make real-time coding 
+collaboration feel immediate and accessible.
+
+---
 ## ✨ Features
 
 - Real-time multi-user code editing under 100ms latency

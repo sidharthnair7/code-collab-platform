@@ -227,22 +227,6 @@ export default function MainLayout({ token, username, onLogout }) {
         return () => clearTimeout(saveTimer);
     }, [fileContent]);
 
-    useEffect(() => {
-        if (!selectedFile || !selectedWorkspace) return;
-        const isOwner = selectedWorkspace.owner?.email === username;
-        if (isOwner) return;
-        const interval = setInterval(async () => {
-            try {
-                const res = await fetch(
-                    `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1"}/files/${selectedFile.id}`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                const data = await res.json();
-                setFileContent(data.content ?? "");
-            } catch (err) { console.error("Poll content failed:", err); }
-        }, 3000);
-        return () => clearInterval(interval);
-    }, [selectedFile, selectedWorkspace]);
 
     function handleIncomingCodeOperation(operation) {
         if (!selectedFileRef.current) return;

@@ -8,7 +8,7 @@ let stompClient = null;
 let isConnected = false;
 
 export function connectWebSocket(username,fileId, onMessageReceived) {
-    console.log('🔵 Attempting to connect to WebSocket...');
+    console.log(' Attempting to connect to WebSocket...');
 
     const socket = new SockJS(`${WS_BASE}/editor`);
     stompClient = Stomp.over(socket);
@@ -28,7 +28,7 @@ export function connectWebSocket(username,fileId, onMessageReceived) {
                 JSON.stringify({ sender: username, chatType: 'JOIN' })
             );
 
-            console.log('📥 Subscribing to /topic/code');
+            console.log(' Subscribing to /topic/code');
             stompClient.subscribe(`/topic/code/${fileId}`, (message) => {
                 const op = JSON.parse(message.body);
                 onMessageReceived(op);
@@ -39,14 +39,14 @@ export function connectWebSocket(username,fileId, onMessageReceived) {
             isConnected = false;
 
             setTimeout(() => {
-                console.log('🔄 Attempting to reconnect...');
+                console.log(' Attempting to reconnect...');
                 connectWebSocket(username, fileId, onMessageReceived);
-            }, 5000);
+            }, 2000);
         }
     );
 
     socket.onclose = () => {
-        console.log('🔌 Socket closed');
+        console.log(' Socket closed');
         isConnected = false;
     };
 }
@@ -63,7 +63,7 @@ export function sendCodeOperation(codeOperation) {
 export function disconnectWebSocket() {
     if (stompClient && isConnected) {
         stompClient.disconnect(() => {
-            console.log('👋 Disconnected from WebSocket');
+            console.log(' Disconnected from WebSocket');
             isConnected = false;
         });
     }

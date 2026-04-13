@@ -8,6 +8,7 @@ import projectCP.user.UserDTO;
 import projectCP.user.UserRepository;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +38,7 @@ public class WorkSpaceService {
     }
 
 
-    public WorkSpaceDTO findById(Integer id) {
+    public WorkSpaceDTO findById(UUID id) {
         WorkSpace workSpace = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Workspace not found"));
         return new WorkSpaceDTO(workSpace.getId(), workSpace.getName(), new UserDTO(
@@ -59,14 +60,14 @@ public class WorkSpaceService {
         repository.save(workSpace);
     }
 
-    public void deleteWorkSpace(Integer id) {
+    public void deleteWorkSpace(UUID id) {
 
         WorkSpace workSpace = repository.findById(id)
                 .orElseThrow(()-> new RuntimeException("Workspace NOT FOUND"));
         repository.delete(workSpace);
     }
 
-    public void updateWorkSpace(WorkSpaceDTO workSpaceDTO, Integer id) throws Exception {
+    public void updateWorkSpace(WorkSpaceDTO workSpaceDTO, UUID id) throws Exception {
 
         User user = userRepository.findById(workSpaceDTO.owner().id())
                 .orElseThrow(() -> new RuntimeException("User not found"));

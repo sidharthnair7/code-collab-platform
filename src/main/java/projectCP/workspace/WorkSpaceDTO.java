@@ -3,8 +3,10 @@ package projectCP.workspace;
 
 import projectCP.user.UserDTO;
 
+import java.util.UUID;
+
 public record WorkSpaceDTO(
-        Integer id,
+        UUID id,
         String workSpaceName,
         UserDTO owner
 ) {

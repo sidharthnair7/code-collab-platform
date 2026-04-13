@@ -3,6 +3,8 @@ package projectCP.codeeditor;
 
 import lombok.*;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,6 +17,6 @@ public class Code {
     private int length;
     private String username;
     private long timestamp;
-    private int fileId;
+    private UUID fileId;
     private String clientId;
 }

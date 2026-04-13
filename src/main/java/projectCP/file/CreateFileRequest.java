@@ -1,6 +1,8 @@
 package projectCP.file;
 
+import java.util.UUID;
+
 public record CreateFileRequest(
         String fileName,
-        Integer workspaceId
+        UUID workspaceId
 ) {}

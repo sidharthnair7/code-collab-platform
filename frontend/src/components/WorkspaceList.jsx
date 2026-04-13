@@ -46,7 +46,7 @@ export default function WorkspaceList({ files, token, onDelete, onRename, onUpda
         if (!newFileName.trim()) return;
         try {
             const { createFile } = await import("../api");
-            await createFile(token, newFileName, parseInt(workspaceId));
+            await createFile(token, newFileName, workspaceId);
             setNewFileName("");
             setIsCreating(false);
             onRefresh();

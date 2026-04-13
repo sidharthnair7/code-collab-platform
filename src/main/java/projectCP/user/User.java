@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 
 @Data
@@ -23,8 +24,8 @@ public class User implements UserDetails {
 
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
     private  String firstName;
     private  String lastName;
     @Column(nullable = false, unique = true)

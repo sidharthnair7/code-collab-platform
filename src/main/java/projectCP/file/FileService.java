@@ -9,6 +9,7 @@ import projectCP.workspace.WorkSpaceRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class FileService {
     private final WorkSpaceRepository workSpaceRepository;
 
 
-    public List<FileDTO> findAll(Integer ownerId) {
+    public List<FileDTO> findAll(UUID ownerId) {
         return repository.findByWorkspaceOwnerId(ownerId)
                 .stream()
                 .map(file -> new FileDTO(
@@ -30,7 +31,7 @@ public class FileService {
                 ))
                 .toList();
     }
-    public List<FileDTO> findByWorkspaceId(Integer workspaceId) {
+    public List<FileDTO> findByWorkspaceId(UUID workspaceId) {
         return repository.findAll()
                 .stream()
                 .filter(f -> f.getWorkspace().getId().equals(workspaceId))
@@ -46,7 +47,7 @@ public class FileService {
     }
 
 
-    public FileDTO findFileByID(Integer id) {
+    public FileDTO findFileByID(UUID id) {
         File file = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("File not found"));
         FileDTO fileDto =new FileDTO(
@@ -61,7 +62,7 @@ public class FileService {
     }
 
     //CREATE
-    public void save(String fileName,Integer workSpaceId) {
+    public void save(String fileName,UUID workSpaceId) {
         WorkSpace workSpace = workSpaceRepository.findById(workSpaceId)
                         .orElseThrow(() -> new RuntimeException("Workspace not found"));
 
@@ -75,7 +76,7 @@ public class FileService {
     }
 
 
-    public void rename(Integer id, String newName) {
+    public void rename(UUID id, String newName) {
         File file = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("File not found"));
         file.setFileName(newName);
@@ -85,7 +86,7 @@ public class FileService {
 
 
 
-    public void updateContent(Integer fileID, String newContent) {
+    public void updateContent(UUID fileID, String newContent) {
         File updateFile = repository.findById(fileID)
                 .orElseThrow(() -> new RuntimeException("File not found"));
 
@@ -95,7 +96,7 @@ public class FileService {
         repository.save(updateFile);
     }
 
-   public void deleteFile(Integer fileId) {
+   public void deleteFile(UUID fileId) {
         File file = repository.findById(fileId)
                 .orElseThrow(() -> new RuntimeException("File not found"));
         repository.delete(file);

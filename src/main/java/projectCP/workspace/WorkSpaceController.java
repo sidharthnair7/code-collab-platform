@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/workspace")
@@ -20,7 +21,7 @@ public class WorkSpaceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WorkSpaceDTO> getWorkSpaceById(@PathVariable Integer id) {
+    public ResponseEntity<WorkSpaceDTO> getWorkSpaceById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
@@ -31,13 +32,13 @@ public class WorkSpaceController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWorkSpace( @PathVariable Integer id) {
+    public ResponseEntity<Void> deleteWorkSpace( @PathVariable UUID id) {
         service.deleteWorkSpace(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateWorkSpace(@RequestBody WorkSpaceDTO workSpaceDTO,@PathVariable Integer id) throws Exception {
+    public ResponseEntity<Void> updateWorkSpace(@RequestBody WorkSpaceDTO workSpaceDTO,@PathVariable UUID id) throws Exception {
         service.updateWorkSpace(workSpaceDTO,id);
         return ResponseEntity.ok().build();
 

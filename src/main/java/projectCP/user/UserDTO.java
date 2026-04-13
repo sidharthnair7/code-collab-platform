@@ -1,7 +1,9 @@
 package projectCP.user;
 
+import java.util.UUID;
+
 public record UserDTO(
-        Integer id,
+        UUID id,
         String email,
         String firstName,
         String lastName

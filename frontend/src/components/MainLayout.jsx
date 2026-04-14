@@ -444,7 +444,7 @@ export default function MainLayout({ token, username, onLogout }) {
                                 if (!joinId.trim()) return;
                                 try {
                                     const { getWorkspaceById } = await import("../api");
-                                    const ws = await getWorkspaceById(token, parseInt(joinId));
+                                    const ws = await getWorkspaceById(token, joinId.trim());
                                     setWorkspaces(prev => prev.find(w => w.id === ws.id) ? prev : [...prev, ws]);
                                     setSelectedWorkspace(ws);
                                     setJoinId("");

@@ -16,6 +16,7 @@ public class Code {
     private int position;
     private int length;
     private String username;
+    private String color;
     private long timestamp;
     private UUID fileId;
     private String clientId;

@@ -38,6 +38,7 @@ export default function App() {
     }
 
 
+    console.log("staging deploy test");
 
     return <MainPart token={token} username={username} onLogout={handleLogout} />;
 

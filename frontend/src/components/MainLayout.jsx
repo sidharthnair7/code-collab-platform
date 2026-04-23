@@ -5,7 +5,7 @@ import {
 } from "../api";
 import { connectWebSocket, sendCodeOperation, disconnectWebSocket } from "../websocket";
 import Editor from "@monaco-editor/react";
-import "../assets/MainLayout.css";
+import "../assets/Mainlayout.css";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 

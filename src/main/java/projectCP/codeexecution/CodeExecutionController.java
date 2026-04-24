@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/code/execute")
+@RequestMapping("/api/v1/code/execute")
 @RequiredArgsConstructor
 public class CodeExecutionController {
 

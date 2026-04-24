@@ -253,7 +253,6 @@ export default function MainLayout({ token, username, onLogout }) {
         setOutputOpen(true);
         try {
             const result = await executeCode(
-                token,
                 selectedLang.value,
                 selectedLang.version,
                 fileContent,

@@ -126,6 +126,6 @@ export async function executeCode(language, version,code) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language,version  }),
     })
-    if (!res.ok) throw new Error("Failed to execute code");
+    if (!res.ok) throw new Error(`Failed to execute code: ${res.status}`);
     return res.json();
 }

@@ -123,7 +123,7 @@ export async function deleteWorkspace(token, id) {
 export async function executeCode(language, version,code) {
     const res = await fetch(`${API_BASE}/code/execute`, {
         method: "POST",
-        headers: authHeaders(token),
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language,version  }),
     })
     if (!res.ok) throw new Error("Failed to execute code");

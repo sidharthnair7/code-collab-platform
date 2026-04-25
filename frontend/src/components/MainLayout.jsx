@@ -198,7 +198,6 @@ export default function MainLayout({ token, username, onLogout }) {
         }
     }
 
-    // ── CRUD handlers ──────────────────────────────────────────────────────
 
     async function loadWorkspaces() {
         try { setWorkspaces(await getWorkspaces(token)); }
@@ -283,12 +282,10 @@ export default function MainLayout({ token, username, onLogout }) {
         setTimeout(() => setCopied(null), 1500);
     }
 
-    // ── Render ─────────────────────────────────────────────────────────────
 
     return (
         <div className="cc-app">
 
-            {/* ── TOP BAR ───────────────────────────────────────────────── */}
             <header className="cc-topbar">
                 <div className="cc-topbar-left">
                     <div className="cc-logo-icon">

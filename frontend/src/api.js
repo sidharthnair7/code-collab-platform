@@ -120,12 +120,21 @@ export async function deleteWorkspace(token, id) {
     if (!res.ok) throw new Error("Failed to delete workspace");
 }
 
-export async function executeCode(token,language, version,code) {
+export async function executeCode(token,languageId,code) {
     const res = await fetch(`${API_BASE}/code/execute`, {
         method: "POST",
         headers: authHeaders(token),
-        body: JSON.stringify({ code, language,version  }),
+        body: JSON.stringify({ code, languageId  }),
     })
-    if (!res.ok) throw new Error(`Failed to execute code: ${res.status}`);
+    if (!res.ok){
+        let message = `Failed to execute code: ${res.status}`;
+        try {
+            const errorData = await res.json();
+            message = errorData.message || errorData.error || message;
+        } catch {}
+
+        throw new Error(message);
+    }
+
     return res.json();
 }

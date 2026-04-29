@@ -54,7 +54,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/editor/**").permitAll()
                         .requestMatchers("/app/**").permitAll()
                         .requestMatchers("/topic/**").permitAll()
-                        .requestMatchers("/api/v1/code/**").permitAll()
+                        .requestMatchers("/api/v1/code/**").authenticated()
                         .requestMatchers("/api/v1/workspace/**").authenticated()
                         .requestMatchers("/api/v1/files/**").authenticated()
 

@@ -7,12 +7,11 @@ import { connectWebSocket, sendCodeOperation, disconnectWebSocket } from "../web
 import Editor from "@monaco-editor/react";
 import "../assets/Mainlayout.css";
 
-// ── Constants ────────────────────────────────────────────────────────────────
 
 const LANGUAGES = [
-    { label: "Python",     value: "python", version: "3.10.0"  },
-    { label: "Java",       value: "java",   version: "15.0.2"  },
-    { label: "JavaScript", value: "node",   version: "18.15.0" },
+    { label: "Python",     languageId: 71  },
+    { label: "Java",       languageId: 62  },
+    { label: "JavaScript", languageId: 63 },
 ];
 
 const FILE_ICONS = {
@@ -57,7 +56,7 @@ export default function MainLayout({ token, username, onLogout }) {
     const selectedFileRef  = useRef(null);
     const myColorRef       = useRef(`hsl(${Math.random() * 360}, 70%, 60%)`);
 
-    // ── Derived ────────────────────────────────────────────────────────────
+
     const workspaceFiles = selectedWorkspace
         ? files.filter(f =>
             f.workspaceId === selectedWorkspace.id ||
@@ -65,7 +64,8 @@ export default function MainLayout({ token, username, onLogout }) {
         )
         : [];
 
-    const monacoLang = selectedLang.value === "node" ? "javascript" : selectedLang.value;
+    const monacoLang = selectedLang.label === "JavaScript" ? "javascript"
+        : selectedLang.label.toLowerCase();
 
     // ── Effects ────────────────────────────────────────────────────────────
 
@@ -253,8 +253,7 @@ export default function MainLayout({ token, username, onLogout }) {
         try {
             const result = await executeCode(
                 token,
-                selectedLang.value,
-                selectedLang.version,
+                selectedLang.languageId,
                 fileContent,
             );
             setOutput(result);
@@ -418,15 +417,14 @@ export default function MainLayout({ token, username, onLogout }) {
                             <div className="cc-tabbar-right">
                                 <select
                                     className="cc-lang-select"
-                                    value={selectedLang.value}
-                                    onChange={e =>
-                                        setSelectedLang(
-                                            LANGUAGES.find(l => l.value === e.target.value)
-                                        )
-                                    }
+                                    value={selectedLang.languageId}
+                                    onChange={e => setSelectedLang(
+                                        LANGUAGES.find(l =>
+                                            l.languageId === parseInt(e.target.value))
+                                    )}
                                 >
                                     {LANGUAGES.map(l => (
-                                        <option key={l.value} value={l.value}>{l.label}</option>
+                                        <option key={l.languageId} value={l.languageId}>{l.label}</option>
                                     ))}
                                 </select>
 

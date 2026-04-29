@@ -54,4 +54,7 @@ jobs:
             -e DATASOURCE_PASSWORD="${{ secrets.DATASOURCE_PASSWORD }}" \
             -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
             -e FRONTEND_URL="${{ secrets.FRONTEND_URL }}" \
+            -e JUDGE0_API_KEY="${{ secrets.JUDGE0_API_KEY }}" \
+            -e JUDGE0_API_HOST="${{ secrets.JUDGE0_API_HOST }}" \
+            -e JUDGE0_API_URL="${{ secrets.JUDGE0_API_URL }}" \
             ${{ secrets.DOCKERHUB_USERNAME }}/code-collab-platform:latest

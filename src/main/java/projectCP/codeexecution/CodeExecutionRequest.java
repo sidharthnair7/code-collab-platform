@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CodeExecutionRequest {
-    private String language;
-    private String version;
     private String code;
+    private Integer languageId;
 }

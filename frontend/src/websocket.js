@@ -10,8 +10,7 @@ let isConnected = false;
 export function connectWebSocket(username,fileId, onMessageReceived) {
     console.log(' Attempting to connect to WebSocket...');
 
-    const socket = new SockJS(`${WS_BASE}/editor`);
-    stompClient = Stomp.over(socket);
+    stompClient = Stomp.over(()=> new SockJS(`${WS_BASE}/editor`));
 
     stompClient.debug = (str) => console.log('STOMP Debug:', str);
 
@@ -37,18 +36,9 @@ export function connectWebSocket(username,fileId, onMessageReceived) {
         (error) => {
             console.error(' WebSocket connection error:', error);
             isConnected = false;
-
-            setTimeout(() => {
-                console.log(' Attempting to reconnect...');
-                connectWebSocket(username, fileId, onMessageReceived);
-            }, 2000);
         }
     );
 
-    socket.onclose = () => {
-        console.log(' Socket closed');
-        isConnected = false;
-    };
 }
 
 export function sendCodeOperation(codeOperation) {

@@ -19,7 +19,6 @@ export function connectWebSocket(username,fileId, onMessageReceived) {
         (frame) => {
             console.log(' Connected to WebSocket:', frame);
             isConnected = true;
-            onConnected?.();
 
             console.log(' Sending username to session:', username);
             stompClient.send(
@@ -37,7 +36,6 @@ export function connectWebSocket(username,fileId, onMessageReceived) {
         (error) => {
             console.error(' WebSocket connection error:', error);
             isConnected = false;
-            onDisconnected?.();
         }
     );
 

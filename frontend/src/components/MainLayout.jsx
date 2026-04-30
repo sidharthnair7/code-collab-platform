@@ -110,9 +110,8 @@ export default function MainLayout({ token, username, onLogout }) {
             setIsWsConnected(false);
             return;
         }
-        connectWebSocket(usernameRef.current, selectedFile.id, handleIncomingOperation,
-            ()=>setIsWsConnected(true),()=>setIsWsConnected(false));
-
+        connectWebSocket(usernameRef.current, selectedFile.id, handleIncomingOperation);
+        setIsWsConnected(true);
         return () => { disconnectWebSocket(); setIsWsConnected(false); };
     }, [selectedFile]);
 

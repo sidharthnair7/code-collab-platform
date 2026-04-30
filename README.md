@@ -58,7 +58,7 @@ At higher concurrency I'd move WebSocket state to Redis pub/sub so multiple back
 
 | Layer | Technology |
 |---|---|
-| Backend | Java 17, Spring Boot, Spring Security |
+| Backend | Java 21, Spring Boot, Spring Security |
 | Auth | JWT (stateless) |
 | Real-time | WebSockets (STOMP protocol) |
 | Frontend | React, Monaco Editor |

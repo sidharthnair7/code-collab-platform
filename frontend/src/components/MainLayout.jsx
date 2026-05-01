@@ -110,8 +110,13 @@ export default function MainLayout({ token, username, onLogout }) {
             setIsWsConnected(false);
             return;
         }
-        connectWebSocket(usernameRef.current, selectedFile.id, handleIncomingOperation);
-        setIsWsConnected(true);
+        connectWebSocket(
+            usernameRef.current,
+            selectedFile.id,
+            handleIncomingOperation,
+            () => setIsWsConnected(true),
+            () => setIsWsConnected(false)
+        );
         return () => { disconnectWebSocket(); setIsWsConnected(false); };
     }, [selectedFile]);
 
@@ -119,13 +124,13 @@ export default function MainLayout({ token, username, onLogout }) {
     useEffect(() => {
         if (!selectedFile || fileContent == null) return;
         if (!selectedWorkspace) return;
-        if (selectedWorkspace.owner?.email !== username) return;
+        if (!selectedWorkspace.owner?.email || selectedWorkspace.owner.email !== username) return;
         const t = setTimeout(async () => {
             try { await updateFileContent(token, selectedFile.id, fileContent); }
             catch (err) { console.error("Auto-save failed:", err); }
         }, 3000);
         return () => clearTimeout(t);
-    }, [fileContent]);
+    }, [fileContent, selectedFile, selectedWorkspace, token, username]);
 
     // ── WebSocket handlers ─────────────────────────────────────────────────
 

@@ -36,13 +36,14 @@ public class WebSocketEventListener {
         }
     }
 
+    @MessageMapping("/code.operation")
     public void HandleCodeEditorOperations(Code code, StompHeaderAccessor headerAccessor) {
         String username = (String)headerAccessor.getSessionAttributes().get("username");
         if(username!=null){
             code.setUsername(username);
             code.setTimestamp(System.currentTimeMillis());
 
-            messagingTemplate.convertAndSend("/topic/code", code);
+            messagingTemplate.convertAndSend("/topic/code/" + code.getFileId(), code);
         }
 
     }

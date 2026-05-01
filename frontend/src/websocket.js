@@ -7,7 +7,7 @@ const WS_BASE = import.meta.env.VITE_WS_BASE_URL || "http://localhost:8080";
 let stompClient = null;
 let isConnected = false;
 
-export function connectWebSocket(username, fileId, onMessageReceived, onConnected, onDisconnected) {
+export function connectWebSocket(username,fileId, onMessageReceived) {
     console.log(' Attempting to connect to WebSocket...');
 
     stompClient = Stomp.over(()=> new SockJS(`${WS_BASE}/editor`));
@@ -19,7 +19,6 @@ export function connectWebSocket(username, fileId, onMessageReceived, onConnecte
         (frame) => {
             console.log(' Connected to WebSocket:', frame);
             isConnected = true;
-            onConnected?.();
 
             console.log(' Sending username to session:', username);
             stompClient.send(
@@ -37,7 +36,6 @@ export function connectWebSocket(username, fileId, onMessageReceived, onConnecte
         (error) => {
             console.error(' WebSocket connection error:', error);
             isConnected = false;
-            onDisconnected?.();
         }
     );
 

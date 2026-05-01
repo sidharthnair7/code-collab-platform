@@ -80,8 +80,6 @@ export default function MainLayout({ token, username, onLogout }) {
     useEffect(() => {
         if (!selectedWorkspace) return;
         loadFiles();
-        const id = setInterval(loadFiles, 3000);
-        return () => clearInterval(id);
     }, [selectedWorkspace]);
 
     // Fetch file content when a file is selected

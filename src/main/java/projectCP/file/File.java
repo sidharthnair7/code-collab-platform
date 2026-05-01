@@ -23,6 +23,8 @@ public class File {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String fileName;
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id")

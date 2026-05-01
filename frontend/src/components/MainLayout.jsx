@@ -55,6 +55,7 @@ export default function MainLayout({ token, username, onLogout }) {
     const lastSentRef      = useRef(null);
     const selectedFileRef  = useRef(null);
     const myColorRef       = useRef(`hsl(${Math.random() * 360}, 70%, 60%)`);
+    const hasLoadedFileRef = useRef(false);
 
 
     const workspaceFiles = selectedWorkspace
@@ -85,20 +86,26 @@ export default function MainLayout({ token, username, onLogout }) {
 
     // Fetch file content when a file is selected
     useEffect(() => {
-        if (!selectedFile) { setFileContent(""); return; }
+        if (!selectedFile) { setFileContent("");
+            hasLoadedFileRef.current = false;
+            return; }
+        hasLoadedFileRef.current = false;
         (async () => {
             try {
                 const base = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
-                const res  = await fetch(`${base}/files/${selectedFile.id}`, {
+                const res = await fetch(`${base}/files/${selectedFile.id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
+
                 const data = await res.json();
                 setFileContent(data.content ?? "");
+                hasLoadedFileRef.current = true;
             } catch {
                 setFileContent(selectedFile.content ?? "");
+                hasLoadedFileRef.current = true;
             }
         })();
-    }, [selectedFile]);
+    }, [selectedFile, token]);
 
     // Keep ref in sync
     useEffect(() => { selectedFileRef.current = selectedFile; }, [selectedFile]);
@@ -110,8 +117,13 @@ export default function MainLayout({ token, username, onLogout }) {
             setIsWsConnected(false);
             return;
         }
-        connectWebSocket(usernameRef.current, selectedFile.id, handleIncomingOperation);
-        setIsWsConnected(true);
+        connectWebSocket(
+            usernameRef.current,
+            selectedFile.id,
+            handleIncomingOperation,
+            () => setIsWsConnected(true),
+            () => setIsWsConnected(false)
+        );
         return () => { disconnectWebSocket(); setIsWsConnected(false); };
     }, [selectedFile]);
 
@@ -120,12 +132,13 @@ export default function MainLayout({ token, username, onLogout }) {
         if (!selectedFile || fileContent == null) return;
         if (!selectedWorkspace) return;
         if (selectedWorkspace.owner?.email !== username) return;
+        if (!hasLoadedFileRef.current) return;
         const t = setTimeout(async () => {
             try { await updateFileContent(token, selectedFile.id, fileContent); }
             catch (err) { console.error("Auto-save failed:", err); }
         }, 3000);
         return () => clearTimeout(t);
-    }, [fileContent]);
+    }, [fileContent, selectedFile, selectedWorkspace, username, token]);
 
     // ── WebSocket handlers ─────────────────────────────────────────────────
 
@@ -133,7 +146,7 @@ export default function MainLayout({ token, username, onLogout }) {
         if (!selectedFileRef.current) return;
         if (op.fileId    !== selectedFileRef.current.id) return;
         if (op.clientId  === clientIdRef.current) return;
-        if (op.codeTextType === "CURSOR_MOVED") return; // cursors ignored for now
+        if (op.codeTextType === "CURSOR_MOVED") return;
         applyOperation(op);
     }
 

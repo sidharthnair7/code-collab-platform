@@ -32,9 +32,8 @@ public class FileService {
                 .toList();
     }
     public List<FileDTO> findByWorkspaceId(UUID workspaceId) {
-        return repository.findAll()
+        return repository.findByWorkspaceId(workspaceId)
                 .stream()
-                .filter(f -> f.getWorkspace().getId().equals(workspaceId))
                 .map(file -> new FileDTO(
                         file.getId(),
                         file.getFileName(),

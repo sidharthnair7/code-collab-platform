@@ -2,7 +2,7 @@
 
 > Two developers. One editor. Zero lag.
 
-**[▶ Watch Demo]([YOUR_LOOM_LINK](https://www.loom.com/share/d6df28a87388482893234e21248011c1))** · **[Live app](https://sidharthnair-dev.netlify.app/)**
+**[▶ Watch Demo](https://www.loom.com/share/d6df28a87388482893234e21248011c1)** · **[Live app](https://sidharthnair-dev.netlify.app/)**
 
 Try it instantly using demo credentials:
 - Email: `demo@codecollab.com`

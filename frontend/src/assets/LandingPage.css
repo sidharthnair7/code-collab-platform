@@ -5,10 +5,16 @@ html {
     scroll-padding-top: 84px;
 }
 
-/* index.css (Vite template) centers #root with body{display:flex};
-   force a normal block layout while the landing page is mounted */
+/* index.css (Vite template) centers #root with body{display:flex; place-items:center}.
+   place-items also sets justify-items, which modern browsers honor even in block
+   layout — so reset both and pin #root to full width while the landing is mounted. */
 body:has(.lp) {
     display: block;
+    place-items: initial;
+}
+
+body:has(.lp) #root {
+    width: 100%;
 }
 
 .lp {
@@ -205,8 +211,8 @@ body:has(.lp) {
     z-index: 1;
     pointer-events: none;
     background:
-        radial-gradient(110% 85% at 32% 42%, transparent 25%, rgba(5, 5, 6, 0.72) 80%),
-        linear-gradient(180deg, rgba(5, 5, 6, 0.5) 0%, transparent 24%, transparent 62%, #050506 97%);
+        radial-gradient(120% 95% at 30% 40%, transparent 42%, rgba(5, 5, 6, 0.5) 88%),
+        linear-gradient(180deg, rgba(5, 5, 6, 0.25) 0%, transparent 18%, transparent 70%, #050506 98%);
 }
 
 .lp-hero-inner {

@@ -235,7 +235,15 @@ export default function LandingPage({ onLogin }) {
             {/* ── Hero ── */}
             <header className="lp-hero" id="top">
                 <div className="lp-hero-bg">
-                    <GridScan scanDuration={2.4} scanDelay={3.2} noiseIntensity={0.006} />
+                    <GridScan
+                        linesColor="#453b60"
+                        scanColor="#FF9FFC"
+                        scanOpacity={0.5}
+                        bloomIntensity={0.25}
+                        scanDuration={2.4}
+                        scanDelay={3.2}
+                        noiseIntensity={0.006}
+                    />
                 </div>
                 <div className="lp-hero-vignette" />
 

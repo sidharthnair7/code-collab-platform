@@ -3,9 +3,9 @@ import { signup } from "../api";
 
 const rules = [
     { id: "length", label: "At least 8 characters", test: (p) => p.length >= 8 },
-    { id: "upper", label: "At least one uppercase letter", test: (p) => /[A-Z]/.test(p) },
-    { id: "number", label: "At least one number", test: (p) => /[0-9]/.test(p) },
-    { id: "special", label: "At least one special character (!@#$...)", test: (p) => /[^A-Za-z0-9]/.test(p) },
+    { id: "upper", label: "One uppercase letter", test: (p) => /[A-Z]/.test(p) },
+    { id: "number", label: "One number", test: (p) => /[0-9]/.test(p) },
+    { id: "special", label: "One special character", test: (p) => /[^A-Za-z0-9]/.test(p) },
 ];
 
 function isValidEmail(email) {
@@ -41,196 +41,121 @@ export default function Signup({ onSignup, switchMode }) {
         try {
             const data = await signup(email, password, firstName, lastName);
             onSignup(data.token);
-        } catch (err) {
-            setError("Email already registered or signup failed. Try logging in.");
-        } finally {
+        } catch {
+            setError("Email already registered or signup failed. Try signing in.");
             setLoading(false);
         }
     }
 
     return (
-        <div style={styles.page}>
-            <div style={styles.grid} />
-            <div style={styles.blobBlue} />
-            <div style={styles.blobPurple} />
-            <div style={styles.card}>
-                <div style={styles.logoRow}>
-                    <div style={styles.logoIcon}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M8 3L3 8l5 5M16 3l5 5-5 5M14 3l-4 18" stroke="#4fc3f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
+        <>
+            <div className="auth-logo">
+                <div className="auth-logo-mark">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M8 3L3 8l5 5M16 3l5 5-5 5M14 3l-4 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </div>
+                <span>CodeCollab</span>
+            </div>
+
+            <h2 className="auth-title">Create your account</h2>
+            <p className="auth-subtitle">Start collaborating in real time — it takes a minute</p>
+
+            {error && (
+                <div className="auth-error" role="alert">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                        <path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    {error}
+                </div>
+            )}
+
+            <form className="auth-form" onSubmit={handleSubmit}>
+                <div className="auth-row">
+                    <div className="auth-field">
+                        <label htmlFor="signup-first">First name</label>
+                        <input
+                            id="signup-first"
+                            placeholder="Ada"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            autoComplete="given-name"
+                            autoFocus
+                            required
+                        />
                     </div>
-                    <span style={styles.logoText}>CodeCollab</span>
+                    <div className="auth-field">
+                        <label htmlFor="signup-last">Last name</label>
+                        <input
+                            id="signup-last"
+                            placeholder="Lovelace"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            autoComplete="family-name"
+                            required
+                        />
+                    </div>
                 </div>
 
-                <h1 style={styles.title}>Create account</h1>
-                <p style={styles.subtitle}>Start collaborating in real time</p>
-
-                {error && (
-                    <div style={styles.errorBox}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{marginRight: 6, flexShrink: 0}}>
-                            <circle cx="12" cy="12" r="10" stroke="#f87171" strokeWidth="2"/>
-                            <path d="M12 8v4M12 16h.01" stroke="#f87171" strokeWidth="2" strokeLinecap="round"/>
-                        </svg>
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} style={styles.form}>
-                    <div style={styles.row}>
-                        <div style={styles.fieldGroup}>
-                            <label style={styles.label}>First Name</label>
-                            <input
-                                placeholder="John"
-                                value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
-                                required
-                                style={styles.input}
-                                onFocus={e => e.target.style.borderColor = "#4fc3f7"}
-                                onBlur={e => e.target.style.borderColor = "#2a2a2a"}
-                            />
-                        </div>
-                        <div style={styles.fieldGroup}>
-                            <label style={styles.label}>Last Name</label>
-                            <input
-                                placeholder="Doe"
-                                value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
-                                required
-                                style={styles.input}
-                                onFocus={e => e.target.style.borderColor = "#4fc3f7"}
-                                onBlur={e => e.target.style.borderColor = "#2a2a2a"}
-                            />
-                        </div>
-                    </div>
-
-                    <div style={styles.fieldGroup}>
-                        <label style={styles.label}>Email</label>
-                        <input
-                            type="email"
-                            placeholder="you@example.com"
-                            value={email}
-                            onChange={(e) => { setEmail(e.target.value); setEmailError(""); }}
-                            required
-                            style={{
-                                ...styles.input,
-                                borderColor: emailError ? "#f87171" : "#2a2a2a"
-                            }}
-                            onFocus={e => e.target.style.borderColor = "#4fc3f7"}
-                            onBlur={e => {
-                                if (email && !isValidEmail(email)) {
-                                    setEmailError("Please enter a valid email");
-                                    e.target.style.borderColor = "#f87171";
-                                } else {
-                                    e.target.style.borderColor = "#2a2a2a";
-                                }
-                            }}
-                        />
-                        {emailError && (
-                            <span style={{ color: "#f87171", fontSize: 12, marginTop: 4 }}>
-                                {emailError}
-                            </span>
-                        )}
-                    </div>
-
-                    <div style={styles.fieldGroup}>
-                        <label style={styles.label}>Password</label>
-                        <input
-                            type="password"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            onFocus={() => setShowRules(true)}
-                            required
-                            style={{
-                                ...styles.input,
-                                borderColor: password.length > 0
-                                    ? allPassed ? "#4ade80" : "#f87171"
-                                    : "#2a2a2a"
-                            }}
-                        />
-                        {showRules && (
-                            <div style={styles.rulesBox}>
-                                {ruleResults.map((r) => (
-                                    <div key={r.id} style={styles.ruleRow}>
-                                        <span style={{
-                                            ...styles.ruleDot,
-                                            background: r.passed ? "#4ade80" : "#333",
-                                            boxShadow: r.passed ? "0 0 6px rgba(74,222,128,0.4)" : "none"
-                                        }} />
-                                        <span style={{ color: r.passed ? "#4ade80" : "#666", fontSize: 12, transition: "color 0.2s" }}>
-                                            {r.label}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading || !allPassed}
-                        style={{
-                            ...styles.button,
-                            opacity: loading || !allPassed ? 0.5 : 1,
-                            cursor: !allPassed ? "not-allowed" : "pointer"
+                <div className="auth-field">
+                    <label htmlFor="signup-email">Email</label>
+                    <input
+                        id="signup-email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            setEmailError("");
                         }}
-                        onMouseEnter={e => allPassed && !loading && (e.target.style.background = "#29b6f6")}
-                        onMouseLeave={e => e.target.style.background = "#4fc3f7"}
-                    >
-                        {loading ? "Creating account..." : "Create account"}
-                    </button>
-                </form>
+                        onBlur={() => {
+                            if (email && !isValidEmail(email)) setEmailError("Please enter a valid email");
+                        }}
+                        autoComplete="email"
+                        className={emailError ? "has-error" : ""}
+                        required
+                    />
+                    {emailError && <span className="auth-field-error">{emailError}</span>}
+                </div>
 
-                <p style={styles.switchText}>
-                    Already have an account?{" "}
-                    <span onClick={switchMode} style={styles.switchLink}>Sign in</span>
-                </p>
-            </div>
-        </div>
+                <div className="auth-field">
+                    <label htmlFor="signup-password">Password</label>
+                    <input
+                        id="signup-password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onFocus={() => setShowRules(true)}
+                        autoComplete="new-password"
+                        className={password.length > 0 ? (allPassed ? "is-valid" : "has-error") : ""}
+                        required
+                    />
+                    {showRules && (
+                        <ul className="auth-rules">
+                            {ruleResults.map((r) => (
+                                <li key={r.id} className={r.passed ? "passed" : ""}>
+                                    <span className="auth-rule-dot" aria-hidden="true" />
+                                    {r.label}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+
+                <button type="submit" className="auth-submit" disabled={loading || !allPassed}>
+                    {loading ? <span className="auth-spinner" aria-hidden="true" /> : null}
+                    {loading ? "Creating account…" : "Create account"}
+                </button>
+            </form>
+
+            <p className="auth-switch">
+                Already have an account?{" "}
+                <button type="button" className="auth-switch-link" onClick={switchMode}>
+                    Sign in
+                </button>
+            </p>
+        </>
     );
 }
-
-const styles = {
-    page: { minHeight: "100vh", width: "100vw", background: "#0d0d0d", display: "flex",
-        alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden",
-        fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace" },
-    grid: { position: "absolute", inset: 0,
-        backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-        backgroundSize: "40px 40px", pointerEvents: "none" },
-    blobBlue: { position: "absolute", width: 400, height: 400, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(79,195,247,0.08) 0%, transparent 70%)",
-        top: "10%", right: "10%", pointerEvents: "none" },
-    blobPurple: { position: "absolute", width: 300, height: 300, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(124,77,255,0.07) 0%, transparent 70%)",
-        bottom: "15%", left: "5%", pointerEvents: "none" },
-    card: { position: "relative", zIndex: 1, background: "rgba(18,18,18,0.95)",
-        border: "1px solid #1e1e1e", borderRadius: 16, padding: "2.5rem", width: "100%", maxWidth: 420,
-        boxShadow: "0 0 0 1px rgba(255,255,255,0.04), 0 24px 64px rgba(0,0,0,0.6)" },
-    logoRow: { display: "flex", alignItems: "center", gap: 10, marginBottom: "2rem" },
-    logoIcon: { width: 36, height: 36, background: "rgba(79,195,247,0.1)",
-        border: "1px solid rgba(79,195,247,0.2)", borderRadius: 8, display: "flex",
-        alignItems: "center", justifyContent: "center" },
-    logoText: { color: "#fff", fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em" },
-    title: { color: "#fff", fontSize: 24, fontWeight: 700, margin: "0 0 6px 0", letterSpacing: "-0.03em" },
-    subtitle: { color: "#555", fontSize: 13, margin: "0 0 1.5rem 0" },
-    errorBox: { display: "flex", alignItems: "center", background: "rgba(248,113,113,0.08)",
-        border: "1px solid rgba(248,113,113,0.2)", borderRadius: 8, padding: "10px 12px",
-        color: "#f87171", fontSize: 13, marginBottom: "1rem" },
-    form: { display: "flex", flexDirection: "column", gap: "1rem" },
-    row: { display: "flex", gap: "0.75rem" },
-    fieldGroup: { display: "flex", flexDirection: "column", gap: 6, flex: 1 },
-    label: { color: "#888", fontSize: 12, fontWeight: 500, letterSpacing: "0.05em", textTransform: "uppercase" },
-    input: { background: "#141414", border: "1px solid #2a2a2a", borderRadius: 8, padding: "10px 14px",
-        color: "#fff", fontSize: 14, outline: "none", transition: "border-color 0.2s",
-        fontFamily: "inherit", width: "100%", boxSizing: "border-box" },
-    button: { marginTop: 8, background: "#4fc3f7", color: "#000", border: "none", borderRadius: 8,
-        padding: "11px", fontSize: 14, fontWeight: 700, cursor: "pointer", transition: "background 0.2s",
-        fontFamily: "inherit", letterSpacing: "-0.01em" },
-    switchText: { marginTop: "1.5rem", textAlign: "center", color: "#555", fontSize: 13 },
-    switchLink: { color: "#4fc3f7", cursor: "pointer", fontWeight: 600 },
-    rulesBox: { marginTop: 8, background: "#0d0d0d", border: "1px solid #1e1e1e",
-        borderRadius: 8, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 6 },
-    ruleRow: { display: "flex", alignItems: "center", gap: 8 },
-    ruleDot: { width: 8, height: 8, borderRadius: "50%", flexShrink: 0, transition: "background 0.2s" },
-};

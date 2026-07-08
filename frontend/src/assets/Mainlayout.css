@@ -1,8 +1,4 @@
-/* ============================================================
-   MainLayout.css — CodeCollab Platform
-   Place this in: src/assets/MainLayout.css
-   Import in MainLayout.jsx:  import "../assets/MainLayout.css";
-   ============================================================ */
+
 
 /* ── Reset & base ─────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

@@ -1,47 +1,50 @@
 import { useState } from "react";
 
-import Login from "./components/Login";
-import Signup from "./components/Signup";
 import MainPart from "./components/mainPart";
+import LandingPage from "./components/LandingPage";
 
-export default function App() {
-    const [token, setToken] = useState(null);
-    const [username, setUsername] = useState(null);
-    const [mode, setMode] = useState("login"); // login | signup
-    function handleLogin(token) {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUsername(payload.sub); // 'sub' is the email, set as subject in JwtService
-        setToken(token);
+const TOKEN_KEY = "codecollab_token";
+
+function decodeJwt(token) {
+    try {
+        const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+        return JSON.parse(atob(base64));
+    } catch {
+        return null;
     }
-    function handleLogout() {
-        setToken(null);
-        setUsername(null);
-    }
-
-    if (!token) {
-        return (
-            <>
-
-                {mode === "login" ? (
-                    <Login
-                        onLogin={handleLogin}
-                        switchMode={() => setMode("signup")}
-                    />
-                ) : (
-                    <Signup
-                        onSignup={handleLogin}
-                        switchMode={() => setMode("login")}
-                    />
-                )}
-            </>
-        );
-    }
-
-
-    console.log("staging deploy test");
-
-    return <MainPart token={token} username={username} onLogout={handleLogout} />;
-
 }
 
+function isExpired(payload) {
+    return payload.exp && payload.exp * 1000 < Date.now();
+}
 
+export default function App() {
+    const [auth, setAuth] = useState(() => {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) return null;
+        const payload = decodeJwt(token);
+        if (!payload || isExpired(payload)) {
+            localStorage.removeItem(TOKEN_KEY);
+            return null;
+        }
+        return { token, username: payload.sub };
+    });
+
+    function handleLogin(token) {
+        const payload = decodeJwt(token);
+        if (!payload) return;
+        localStorage.setItem(TOKEN_KEY, token);
+        setAuth({ token, username: payload.sub });
+    }
+
+    function handleLogout() {
+        localStorage.removeItem(TOKEN_KEY);
+        setAuth(null);
+    }
+
+    if (!auth) {
+        return <LandingPage onLogin={handleLogin} />;
+    }
+
+    return <MainPart token={auth.token} username={auth.username} onLogout={handleLogout} />;
+}

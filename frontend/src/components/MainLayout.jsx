@@ -301,7 +301,7 @@ export default function MainLayout({ token, username, onLogout }) {
                     <div className="cc-logo-icon">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                             <path d="M8 3L3 8l5 5M16 3l5 5-5 5M14 3l-4 18"
-                                  stroke="#4fc3f7" strokeWidth="2"
+                                  stroke="#c4b5fd" strokeWidth="2"
                                   strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </div>
@@ -350,7 +350,7 @@ export default function MainLayout({ token, username, onLogout }) {
                         <div className="cc-side-section">
                             <div className="cc-side-label">Workspaces</div>
                             {workspaces.length === 0 && (
-                                <p className="cc-side-empty">No workspaces yet</p>
+                                <p className="cc-side-empty">No workspaces yet — create one below</p>
                             )}
                             {workspaces.map(ws => (
                                 <div
@@ -532,9 +532,9 @@ export default function MainLayout({ token, username, onLogout }) {
                     ) : (
                         <div className="cc-empty-editor">
                             <div className="cc-empty-icon">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                                     <path d="M8 3L3 8l5 5M16 3l5 5-5 5M14 3l-4 18"
-                                          stroke="#333" strokeWidth="1.5"
+                                          stroke="#c4b5fd" strokeWidth="1.8"
                                           strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                             </div>

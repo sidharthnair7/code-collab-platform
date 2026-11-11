@@ -1,7 +1,5 @@
 # CodeCollab — Real-Time Collaborative Coding Platform
 
-> Two developers. One editor. Zero lag.
-
 **[▶ Watch Demo](https://www.loom.com/share/d6df28a87388482893234e21248011c1)**
 
 The hosted app is offline right now. The demo video above still works.
@@ -11,7 +9,7 @@ The hosted app is offline right now. The demo video above still works.
 
 ## What it does
 
-CodeCollab lets multiple developers write and edit code together in real time — like Google Docs, but for code. Changes propagate in under 100ms. Every workspace is JWT-secured and fully isolated from other tenants.
+CodeCollab lets multiple developers write and edit code together in real time — like Google Docs, but for code. Changes propagate in under 100ms.
 
 Deployed and actively tested in real-time multi-user sessions. Supports multiple users editing the same workspace with sub-100ms sync. Not a tutorial project.
 
@@ -27,7 +25,6 @@ React + Monaco Editor
         └── WebSocket (STOMP)  ────────────────────────┤
                                                        │
                                               PostgreSQL (Neon)
-                                         multi-tenant schema
 
 Deployed: Docker → GitHub Actions CI/CD → AWS EC2
 Frontend: Netlify · DB: Neon PostgreSQL
@@ -41,9 +38,6 @@ STOMP gives topic-based routing out of the box — each workspace subscribes to 
 
 **How concurrent edits are handled**
 Each edit event carries a timestamp and user ID. The backend processes events sequentially per workspace session — last acknowledged write wins. Intentionally simple: optimistic UI with server reconciliation avoids OT/CRDT complexity while keeping perceived latency near zero.
-
-**Multi-tenant data isolation**
-Every workspace, file, and user record is scoped by `tenant_id` at the schema level. No workspace can query another tenant's data — enforced at the repository layer, not just the API layer.
 
 **JWT + Spring Security**
 Stateless auth. Tokens are validated on every request, including the WebSocket handshake upgrade. No session state on the server.

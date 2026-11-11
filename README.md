@@ -2,11 +2,10 @@
 
 > Two developers. One editor. Zero lag.
 
-**[▶ Watch Demo](https://www.loom.com/share/d6df28a87388482893234e21248011c1)** · **[Live app](https://sidharthnair-dev.netlify.app/)**
+**[▶ Watch Demo](https://www.loom.com/share/d6df28a87388482893234e21248011c1)**
 
-Try it instantly using demo credentials:
-- Email: `demo@codecollab.com`
-- Password: `Demo1234!`
+The hosted app is offline right now. The demo video above still works.
+
 ---
 
 
